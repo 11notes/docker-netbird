@@ -1,0 +1,98 @@
+{
+  "Stuns": [
+    {
+      "Proto": "udp",
+      "URI": "stun:${STUN_FQDN_AND_PORT}",
+      "Secret": "$STUN_SECRET"
+    }
+  ],
+  "TURNConfig": {
+    "Turns": [
+      {
+        "Proto": "udp",
+        "URI": "turn:${TURN_FQDN_AND_PORT}"
+      }
+    ],
+    "CredentialsTTL": "12h",
+    "Secret": "${TURN_SECRET}",
+    "TimeBasedCredentials": false
+  },
+  "Relay": {
+    "Addresses": ["rels://${NETBIRD_FQDN}:443/relay"],
+    "CredentialsTTL": "24h",
+    "Secret": "${NETBIRD_RELAY_SECRET}"
+  },
+  "Signal": {
+    "Proto": "https",
+    "URI": "${NETBIRD_FQDN}:443",
+    "Username": "",
+    "Password": null
+  },
+  "ReverseProxy": {
+    "TrustedHTTPProxies": [],
+    "TrustedHTTPProxiesCount": 0,
+    "TrustedPeers": [
+      "0.0.0.0/0"
+    ]
+  },
+  "Datadir": "/netbird/etc",
+  "DataStoreEncryptionKey": "${NETBIRD_DATASTORE_ENCRYPTION_KEY}",
+  "StoreConfig": {
+    "Engine": "postgres"
+  },
+  "HttpConfig": {
+    "Address": "0.0.0.0:33073",
+    "AuthIssuer": "https://${KEYCLOAK_FQDN}/realms/${KEYCLOAK_REALM}",
+    "AuthAudience": "netbird-client",
+    "AuthKeysLocation": "https://${KEYCLOAK_FQDN}/realms/${KEYCLOAK_REALM}/protocol/openid-connect/certs",
+    "AuthUserIDClaim": "",
+    "IdpSignKeyRefreshEnabled": false,
+    "OIDCConfigEndpoint":"https://${KEYCLOAK_FQDN}/realms/${KEYCLOAK_REALM}/.well-known/openid-configuration"
+  },
+  "IdpManagerConfig": {
+    "ManagerType": "keycloak",
+    "ClientConfig": {
+      "ClientID": "netbird-backend",
+      "ClientSecret": "${KEYCLOAK_CLIENT_SECRET}",
+      "TokenEndpoint": "https://${KEYCLOAK_FQDN}/realms/${KEYCLOAK_REALM}/protocol/openid-connect/token",
+      "GrantType": "client_credentials"
+    },
+    "ExtraConfig": {
+      "AdminEndpoint": "https://${KEYCLOAK_FQDN}/admin/realms/${KEYCLOAK_REALM}",
+      "Auth0ClientCredentials": null,
+      "AzureClientCredentials": null,
+      "KeycloakClientCredentials": null,
+      "ZitadelClientCredentials": null
+    },
+    "DeviceAuthorizationFlow": {
+      "Provider": "hosted",
+      "ProviderConfig": {
+        "Audience": "netbird-client",
+        "AuthorizationEndpoint": "",
+        "Domain": "",
+        "ClientID": "netbird-client",
+        "ClientSecret": "",
+        "TokenEndpoint": "https://${KEYCLOAK_FQDN}/realms/${KEYCLOAK_REALM}/protocol/openid-connect/token",
+        "DeviceAuthEndpoint": "https://${KEYCLOAK_FQDN}/realms/${KEYCLOAK_REALM}/protocol/openid-connect/auth/device",
+        "Scope": "openid",
+        "UseIDToken": false,
+        "RedirectURLs": null
+      }
+    }
+  },
+  "PKCEAuthorizationFlow": {
+    "ProviderConfig": {
+      "Audience": "netbird-client",
+      "ClientID": "netbird-client",
+      "ClientSecret": "",
+      "Domain": "",
+      "AuthorizationEndpoint": "https://${KEYCLOAK_FQDN}/realms/${KEYCLOAK_REALM}/protocol/openid-connect/auth",
+      "TokenEndpoint": "https://${KEYCLOAK_FQDN}/realms/${KEYCLOAK_REALM}/protocol/openid-connect/token",
+      "Scope": "openid",
+      "RedirectURLs": ["http://localhost:53000"],
+      "UseIDToken": false,
+      "DisablePromptLogin": false,
+      "LoginFlag": 1
+    }
+  }
+}

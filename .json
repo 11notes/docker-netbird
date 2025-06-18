@@ -1,0 +1,17 @@
+{
+  "image":"11notes/netbird",
+  "name":"netbird",
+  "root":"/netbird",
+  "arch":"linux/amd64,linux/arm64,linux/arm/v7",
+  
+  "semver":{
+    "version":"1.0.2"
+  },
+
+  "readme":{
+    "description":"Activate any version of Windows and Office, forever",
+    "built":{
+      "netbirdio/netbird":"https://github.com/netbirdio/netbird"
+    }
+  }
+}
