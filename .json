@@ -11,6 +11,12 @@
     "description":"Run netbird rootless and distroless from a single image",
     "built":{
       "netbirdio/netbird":"https://github.com/netbirdio/netbird"
+    },
+    "distroless": {
+      "layers": [
+        "11notes/distroless:curl",
+        "11notes/distroless:nginx"
+      ]
     }
   }
 }
