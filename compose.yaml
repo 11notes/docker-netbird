@@ -20,7 +20,7 @@ services:
     restart: "always"
 
   dashboard:
-    image: "11notes/netbird:0.46.0"
+    image: "11notes/netbird:0.48.0"
     read_only: true
     environment:
       NETBIRD_MGMT_API_ENDPOINT: "https://${NETBIRD_FQDN}"
@@ -54,7 +54,7 @@ services:
       db:
         condition: "service_healthy"
         restart: true
-    image: "11notes/netbird:0.46.0"
+    image: "11notes/netbird:0.48.0"
     read_only: true
     env_file: '.env'
     environment:
@@ -82,7 +82,7 @@ services:
     restart: "always"
 
   signal:
-    image: "11notes/netbird:0.46.0"
+    image: "11notes/netbird:0.48.0"
     environment:
       TZ: "Europe/Zurich"
     entrypoint: ["/usr/local/bin/signal"]
@@ -100,7 +100,7 @@ services:
     restart: "always"
 
   relay:
-    image: "11notes/netbird:0.46.0"
+    image: "11notes/netbird:0.48.0"
     environment:
       TZ: "Europe/Zurich"
       NB_LISTEN_ADDRESS: ":33080"

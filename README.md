@@ -83,7 +83,7 @@ services:
     restart: "always"
 
   dashboard:
-    image: "11notes/netbird:0.46.0"
+    image: "11notes/netbird:0.48.0"
     read_only: true
     environment:
       NETBIRD_MGMT_API_ENDPOINT: "https://${NETBIRD_FQDN}"
@@ -117,7 +117,7 @@ services:
       db:
         condition: "service_healthy"
         restart: true
-    image: "11notes/netbird:0.46.0"
+    image: "11notes/netbird:0.48.0"
     read_only: true
     env_file: '.env'
     environment:
@@ -145,7 +145,7 @@ services:
     restart: "always"
 
   signal:
-    image: "11notes/netbird:0.46.0"
+    image: "11notes/netbird:0.48.0"
     environment:
       TZ: "Europe/Zurich"
     entrypoint: ["/usr/local/bin/signal"]
@@ -163,7 +163,7 @@ services:
     restart: "always"
 
   relay:
-    image: "11notes/netbird:0.46.0"
+    image: "11notes/netbird:0.48.0"
     environment:
       TZ: "Europe/Zurich"
       NB_LISTEN_ADDRESS: ":33080"
@@ -264,4 +264,4 @@ docker pull quay.io/11notes/netbird:0.48.0
 # ElevenNotes™️
 This image is provided to you at your own risk. Always make backups before updating an image to a different version. Check the [releases](https://github.com/11notes/docker-netbird/releases) for breaking changes. If you have any problems with using this image simply raise an [issue](https://github.com/11notes/docker-netbird/issues), thanks. If you have a question or inputs please create a new [discussion](https://github.com/11notes/docker-netbird/discussions) instead of an issue. You can find all my other repositories on [github](https://github.com/11notes?tab=repositories).
 
-*created 23.06.2025, 14:27:45 (CET)*
+*created 23.06.2025, 14:37:49 (CET)*
