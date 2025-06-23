@@ -7,7 +7,8 @@
     "version": "0.48.0"
   },
   "readme": {
-    "description": "Run netbird rootless and distroless from a single image",
+    "description": "Run netbird rootless and distroless from a single image.",
+    "introduction":"NetBird combines a WireGuard-based overlay network with Zero Trust Network Access, providing a unified open source platform for reliable and secure connectivity. Create your own selfhosted ZTNA mesh network.",
     "built": {
       "netbirdio/netbird": "https://github.com/netbirdio/netbird"
     },
