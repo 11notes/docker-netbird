@@ -1,9 +1,13 @@
 ![banner](https://github.com/11notes/defaults/blob/main/static/img/banner.png?raw=true)
 
 # NETBIRD
-![size](https://img.shields.io/docker/image-size/11notes/netbird/0.47.2?color=0eb305)![5px](https://github.com/11notes/defaults/blob/main/static/img/transparent5x2px.png?raw=true)![version](https://img.shields.io/docker/v/11notes/netbird/0.47.2?color=eb7a09)![5px](https://github.com/11notes/defaults/blob/main/static/img/transparent5x2px.png?raw=true)![pulls](https://img.shields.io/docker/pulls/11notes/netbird?color=2b75d6)![5px](https://github.com/11notes/defaults/blob/main/static/img/transparent5x2px.png?raw=true)[<img src="https://img.shields.io/github/issues/11notes/docker-NETBIRD?color=7842f5">](https://github.com/11notes/docker-NETBIRD/issues)![5px](https://github.com/11notes/defaults/blob/main/static/img/transparent5x2px.png?raw=true)![swiss_made](https://img.shields.io/badge/Swiss_Made-FFFFFF?labelColor=FF0000&logo=data:image/svg%2bxml;base64,PHN2ZyB2ZXJzaW9uPSIxIiB3aWR0aD0iNTEyIiBoZWlnaHQ9IjUxMiIgdmlld0JveD0iMCAwIDMyIDMyIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgogIDxyZWN0IHdpZHRoPSIzMiIgaGVpZ2h0PSIzMiIgZmlsbD0idHJhbnNwYXJlbnQiLz4KICA8cGF0aCBkPSJtMTMgNmg2djdoN3Y2aC03djdoLTZ2LTdoLTd2LTZoN3oiIGZpbGw9IiNmZmYiLz4KPC9zdmc+)
+![size](https://img.shields.io/docker/image-size/11notes/netbird/0.48.0?color=0eb305)![5px](https://github.com/11notes/defaults/blob/main/static/img/transparent5x2px.png?raw=true)![version](https://img.shields.io/docker/v/11notes/netbird/0.48.0?color=eb7a09)![5px](https://github.com/11notes/defaults/blob/main/static/img/transparent5x2px.png?raw=true)![pulls](https://img.shields.io/docker/pulls/11notes/netbird?color=2b75d6)![5px](https://github.com/11notes/defaults/blob/main/static/img/transparent5x2px.png?raw=true)[<img src="https://img.shields.io/github/issues/11notes/docker-NETBIRD?color=7842f5">](https://github.com/11notes/docker-NETBIRD/issues)![5px](https://github.com/11notes/defaults/blob/main/static/img/transparent5x2px.png?raw=true)![swiss_made](https://img.shields.io/badge/Swiss_Made-FFFFFF?labelColor=FF0000&logo=data:image/svg%2bxml;base64,PHN2ZyB2ZXJzaW9uPSIxIiB3aWR0aD0iNTEyIiBoZWlnaHQ9IjUxMiIgdmlld0JveD0iMCAwIDMyIDMyIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgogIDxyZWN0IHdpZHRoPSIzMiIgaGVpZ2h0PSIzMiIgZmlsbD0idHJhbnNwYXJlbnQiLz4KICA8cGF0aCBkPSJtMTMgNmg2djdoN3Y2aC03djdoLTZ2LTdoLTd2LTZoN3oiIGZpbGw9IiNmZmYiLz4KPC9zdmc+)
 
-Run netbird rootless and distroless from a single image
+Run netbird rootless and distroless from a single image.
+
+# INTRODUCTION 📢
+
+NetBird combines a WireGuard-based overlay network with Zero Trust Network Access, providing a unified open source platform for reliable and secure connectivity. Create your own selfhosted ZTNA mesh network.
 
 # SYNOPSIS 📖
 **What can I do with this?** This image will run netbird from a single image (not multiple) [rootless](https://github.com/11notes/RTFM/blob/main/linux/container/image/rootless.md) and [distroless](https://github.com/11notes/RTFM/blob/main/linux/container/image/distroless.md) for more security. Due to the nature of a single image and not multiple, you see in the [compose.yaml](https://github.com/11notes/docker-netbird/blob/master/compose.yaml) example that an ```entrypoint:``` has been defined for each service. This image also needs some environment variables present in your **.env** file. This image's defaults (management.json) as well as the example **.env** are to be used with Keycloak as your IdP and Traefik as your reverse proxy. You can however provide your own **management.json** file and use any IdP you like and use a different reverse proxy.
@@ -69,26 +73,13 @@ services:
       - "db.etc:/postgres/etc"
       - "db.var:/postgres/var"
       - "db.backup:/postgres/backup"
+      # used for optional cron container to create automatic backups
       - "db.cmd:/run/cmd"
     tmpfs:
       - "/run/postgresql:uid=1000,gid=1000"
       - "/postgres/log:uid=1000,gid=1000"
     networks:
       backend:
-    restart: "always"
-
-  cron:
-    depends_on:
-      db:
-        condition: "service_healthy"
-        restart: true
-    image: "11notes/cron:4.6"
-    environment:
-      TZ: "Europe/Zurich"
-      CRONTAB: |-
-        0 3 * * * cmd-socket '{"bin":"backup"}' > /proc/1/fd/1
-    volumes:
-      - "db.cmd:/run/cmd"
     restart: "always"
 
   dashboard:
@@ -185,6 +176,22 @@ services:
       - "33080:33080/tcp"
     restart: "always"
 
+  # optional images
+  cron:
+    depends_on:
+      db:
+        condition: "service_healthy"
+        restart: true
+    image: "11notes/cron:4.6"
+    environment:
+      TZ: "Europe/Zurich"
+      # create daily full backup at 3 o'clock
+      CRONTAB: |-
+        0 3 * * * cmd-socket '{"bin":"backup"}' > /proc/1/fd/1
+    volumes:
+      - "db.cmd:/run/cmd"
+    restart: "always"
+
 volumes:
   management.etc:
   management.var:
@@ -218,18 +225,18 @@ networks:
 # MAIN TAGS 🏷️
 These are the main tags for the image. There is also a tag for each commit and its shorthand sha256 value.
 
-* [0.47.2](https://hub.docker.com/r/11notes/netbird/tags?name=0.47.2)
+* [0.48.0](https://hub.docker.com/r/11notes/netbird/tags?name=0.48.0)
 
 ### There is no latest tag, what am I supposed to do about updates?
-It is of my opinion that the ```:latest``` tag is super dangerous. Many times, I’ve introduced **breaking** changes to my images. This would have messed up everything for some people. If you don’t want to change the tag to the latest [semver](https://semver.org/), simply use the short versions of [semver](https://semver.org/). Instead of using ```:0.47.2``` you can use ```:0``` or ```:0.47```. Since on each new version these tags are updated to the latest version of the software, using them is identical to using ```:latest``` but at least fixed to a major or minor version.
+It is of my opinion that the ```:latest``` tag is dangerous. Many times, I’ve introduced **breaking** changes to my images. This would have messed up everything for some people. If you don’t want to change the tag to the latest [semver](https://semver.org/), simply use the short versions of [semver](https://semver.org/). Instead of using ```:0.48.0``` you can use ```:0``` or ```:0.48```. Since on each new version these tags are updated to the latest version of the software, using them is identical to using ```:latest``` but at least fixed to a major or minor version.
 
 If you still insist on having the bleeding edge release of this app, simply use the ```:rolling``` tag, but be warned! You will get the latest version of the app instantly, regardless of breaking changes or security issues or what so ever. You do this at your own risk!
 
 # REGISTRIES ☁️
 ```
-docker pull 11notes/netbird:0.47.2
-docker pull ghcr.io/11notes/netbird:0.47.2
-docker pull quay.io/11notes/netbird:0.47.2
+docker pull 11notes/netbird:0.48.0
+docker pull ghcr.io/11notes/netbird:0.48.0
+docker pull quay.io/11notes/netbird:0.48.0
 ```
 
 # SOURCE 💾
@@ -257,4 +264,4 @@ docker pull quay.io/11notes/netbird:0.47.2
 # ElevenNotes™️
 This image is provided to you at your own risk. Always make backups before updating an image to a different version. Check the [releases](https://github.com/11notes/docker-netbird/releases) for breaking changes. If you have any problems with using this image simply raise an [issue](https://github.com/11notes/docker-netbird/issues), thanks. If you have a question or inputs please create a new [discussion](https://github.com/11notes/docker-netbird/discussions) instead of an issue. You can find all my other repositories on [github](https://github.com/11notes?tab=repositories).
 
-*created 19.06.2025, 07:33:43 (CET)*
+*created 23.06.2025, 11:56:36 (CET)*
