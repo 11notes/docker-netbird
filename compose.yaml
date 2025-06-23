@@ -10,26 +10,13 @@ services:
       - "db.etc:/postgres/etc"
       - "db.var:/postgres/var"
       - "db.backup:/postgres/backup"
+      # used for optional cron container to create automatic backups
       - "db.cmd:/run/cmd"
     tmpfs:
       - "/run/postgresql:uid=1000,gid=1000"
       - "/postgres/log:uid=1000,gid=1000"
     networks:
       backend:
-    restart: "always"
-
-  cron:
-    depends_on:
-      db:
-        condition: "service_healthy"
-        restart: true
-    image: "11notes/cron:4.6"
-    environment:
-      TZ: "Europe/Zurich"
-      CRONTAB: |-
-        0 3 * * * cmd-socket '{"bin":"backup"}' > /proc/1/fd/1
-    volumes:
-      - "db.cmd:/run/cmd"
     restart: "always"
 
   dashboard:
@@ -124,6 +111,22 @@ services:
       frontend:
     ports:
       - "33080:33080/tcp"
+    restart: "always"
+
+  # optional images
+  cron:
+    depends_on:
+      db:
+        condition: "service_healthy"
+        restart: true
+    image: "11notes/cron:4.6"
+    environment:
+      TZ: "Europe/Zurich"
+      # create daily full backup at 3 o'clock
+      CRONTAB: |-
+        0 3 * * * cmd-socket '{"bin":"backup"}' > /proc/1/fd/1
+    volumes:
+      - "db.cmd:/run/cmd"
     restart: "always"
 
 volumes:
