@@ -36,7 +36,7 @@ Below you find a comparison between this image and the most used or original one
 
 # VOLUMES 📁
 * **/netbird/etc** - Directory of your management.json config
-* **/netbird/var** - Directory of dynamic data from differnet init systems (relay, signal, management)
+* **/netbird/var** - Directory of dynamic data from different init systems (relay, signal, management)
 
 # EXAMPLE ENV FILE 📑
 ```ini
