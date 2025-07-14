@@ -2,15 +2,19 @@ ${{ content_synopsis }} This image will run netbird from a single image (not mul
 
 The init binary **management** will replace all variables in the format ```${VARIABLE}``` with all environment variables present in the service.
 
-${{ github:> [!IMPORTANT] }}
-${{ github:> }}* This image runs as 1000:1000 by default, most other images run everything as root
-${{ github:> }}* This image has no shell since it is distroless, most other images run on a distro like Debian or Alpine with full shell access (security)
-${{ github:> }}* This image does not ship with any critical or high rated CVE and is automatically maintained via CI/CD, most other images mostly have no CVE scanning or code quality tools in place
-${{ github:> }}* This image is created via a secure, pinned CI/CD process and immune to upstream attacks, most other images have upstream dependencies that can be exploited
-${{ github:> }}* This image works as read-only, most other images need to write files to the image filesystem
-${{ github:> }}* This image is a lot smaller than most other images
+${{ content_uvp }} Good question! Because ...
 
-If you value security, simplicity and the ability to interact with the maintainer and developer of an image. Using my images is a great start in that direction.
+${{ github:> [!IMPORTANT] }}
+${{ github:> }}* ... this image runs [rootless](https://github.com/11notes/RTFM/blob/main/linux/container/image/rootless.md) as 1000:1000
+${{ github:> }}* ... this image has no shell since it is [distroless](https://github.com/11notes/RTFM/blob/main/linux/container/image/distroless.md)
+${{ github:> }}* ... this image is auto updated to the latest version via CI/CD
+${{ github:> }}* ... this image has a health check
+${{ github:> }}* ... this image runs read-only
+${{ github:> }}* ... this image is automatically scanned for CVEs before and after publishing
+${{ github:> }}* ... this image is created via a secure and pinned CI/CD process
+${{ github:> }}* ... this image is very small
+
+If you value security, simplicity and optimizations to the extreme, then this image might be for you.
 
 # COMPARISON 🏁
 Below you find a comparison between this image and the most used or original one.
@@ -24,7 +28,7 @@ Below you find a comparison between this image and the most used or original one
 
 ${{ title_volumes }}
 * **${{ json_root }}/etc** - Directory of your management.json config
-* **${{ json_root }}/var** - Directory of dynamic data from differnet init systems (relay, signal, management)
+* **${{ json_root }}/var** - Directory of dynamic data from different init systems (relay, signal, management)
 
 # EXAMPLE ENV FILE 📑
 ```ini
@@ -63,4 +67,4 @@ ${{ content_tips }}
 
 ${{ title_caution }}
 ${{ github:> [!CAUTION] }}
-${{ github:> }}* Because this image is distroless, it only works with PostgreSQL, not SQLite. The GeoLocation middleware is also disabled because of this!
+${{ github:> }}* Because this image is distroless, it only works with PostgreSQL, **not SQLite**. The GeoLocation middleware is also disabled because of this!
