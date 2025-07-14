@@ -1,4 +1,9 @@
 name: "netbird"
+
+x-image-netbird: &image
+  image: "11notes/netbird:0.50.2"
+  read_only: true
+
 services:
   db:
     image: "11notes/postgres:16"
@@ -6,22 +11,22 @@ services:
     environment:
       TZ: "Europe/Zurich"
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      # make a full and compressed database backup each day at 03:00
+      POSTGRES_BACKUP_SCHEDULE: "0 3 * * *"
     volumes:
       - "db.etc:/postgres/etc"
       - "db.var:/postgres/var"
       - "db.backup:/postgres/backup"
-      # used for optional cron container to create automatic backups
-      - "db.cmd:/run/cmd"
     tmpfs:
-      - "/run/postgresql:uid=1000,gid=1000"
+      # needed for read-only
+      - "/postgres/run:uid=1000,gid=1000"
       - "/postgres/log:uid=1000,gid=1000"
     networks:
       backend:
     restart: "always"
 
   dashboard:
-    image: "11notes/netbird:0.48.0"
-    read_only: true
+    <<: *image
     environment:
       NETBIRD_MGMT_API_ENDPOINT: "https://${NETBIRD_FQDN}"
       NETBIRD_MGMT_GRPC_API_ENDPOINT: "https://${NETBIRD_FQDN}"
@@ -54,8 +59,7 @@ services:
       db:
         condition: "service_healthy"
         restart: true
-    image: "11notes/netbird:0.48.0"
-    read_only: true
+    <<: *image
     env_file: '.env'
     environment:
       TZ: "Europe/Zurich"
@@ -82,7 +86,7 @@ services:
     restart: "always"
 
   signal:
-    image: "11notes/netbird:0.48.0"
+    <<: *image
     environment:
       TZ: "Europe/Zurich"
     entrypoint: ["/usr/local/bin/signal"]
@@ -100,7 +104,7 @@ services:
     restart: "always"
 
   relay:
-    image: "11notes/netbird:0.48.0"
+    <<: *image
     environment:
       TZ: "Europe/Zurich"
       NB_LISTEN_ADDRESS: ":33080"
@@ -113,22 +117,6 @@ services:
       - "33080:33080/tcp"
     restart: "always"
 
-  # optional images
-  cron:
-    depends_on:
-      db:
-        condition: "service_healthy"
-        restart: true
-    image: "11notes/cron:4.6"
-    environment:
-      TZ: "Europe/Zurich"
-      # create daily full backup at 3 o'clock
-      CRONTAB: |-
-        0 3 * * * cmd-socket '{"bin":"backup"}' > /proc/1/fd/1
-    volumes:
-      - "db.cmd:/run/cmd"
-    restart: "always"
-
 volumes:
   management.etc:
   management.var:
@@ -137,7 +125,6 @@ volumes:
   db.etc:
   db.var:
   db.backup:
-  db.cmd:
 
 networks:
   frontend:
