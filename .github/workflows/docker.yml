@@ -419,7 +419,7 @@ jobs:
           if [ -f LICENSE ]; then
             git add LICENSE
           fi
-          git commit -m "github-actions[bot]: update README.md"
+          git commit -m "docs: auto update README.md"
           git push origin HEAD:master
 
 
