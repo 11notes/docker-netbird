@@ -4,7 +4,9 @@
   # GLOBAL
   ARG APP_UID=1000 \
       APP_GID=1000 \
-      BUILD_ROOT="/go/netbird/management /go/netbird/relay /go/netbird/signal"
+      BUILD_SRC=https://github.com/netbirdio/netbird.git \
+      BUILD_ROOT="/go/netbird/management /go/netbird/relay /go/netbird/signal" \
+      GO_VERSION=1.24
 
   # :: FOREIGN IMAGES
   FROM 11notes/nginx:stable AS distroless-nginx
@@ -15,77 +17,51 @@
 # ║                       BUILD                         ║
 # ╚═════════════════════════════════════════════════════╝
   # :: netbird
-  FROM golang:1.24-alpine AS build
-  COPY --from=util /usr/local/bin /usr/local/bin
+  FROM 11notes/go:${GO_VERSION} AS build
   ARG APP_VERSION \
-      BUILD_ROOT \
-      BUILD_BIN
-
-  ENV CGO_ENABLED=0
+      BUILD_SRC \
+      BUILD_ROOT
 
   RUN set -ex; \
-    apk --update --no-cache add \
-      build-base \
-      upx \
-      git;
+    git clone ${BUILD_SRC} -b v${APP_VERSION}; \
+    sed -i 's/"development"/"v'${APP_VERSION}'"/' /go/netbird/version/version.go;
 
   RUN set -ex; \
-    git clone https://github.com/netbirdio/netbird -b v${APP_VERSION};
-
-  RUN set -ex; \
-    mkdir -p /distroless/usr/local/bin; \
     for BUILD in ${BUILD_ROOT}; do \
       cd ${BUILD}; \
-      BIN="${BUILD}/$(echo ${BUILD} | awk -F '/' '{print $4}')"; \
-      go build -ldflags="-extldflags=-static" -o ${BIN} main.go; \
-      eleven checkStatic ${BIN}; \
-      eleven strip ${BIN}; \
-      cp ${BIN} /distroless/usr/local/bin; \
+      BUILD_BIN="${BUILD}/$(echo ${BUILD} | awk -F '/' '{print $4}')"; \
+      go mod tidy; \
+      eleven go build ${BUILD_BIN} main.go; \
+      eleven distroless ${BUILD_BIN}; \
     done; \
     mv /distroless/usr/local/bin/management /distroless/usr/local/bin/netbird;
 
   # :: management
-  FROM golang:1.24-alpine AS management
-  COPY --from=util /usr/local/bin /usr/local/bin
+  FROM 11notes/go:${GO_VERSION} AS management
   COPY ./build/go/management /go/management
   ENV CGO_ENABLED=0
-  ARG BIN=/go/management/management
-
-  RUN set -ex; \
-    apk --update --no-cache add \
-      build-base \
-      upx; 
+  ARG BUILD_BIN=/go/management/management
 
   RUN set -ex; \
     cd /go/management; \
-    go build -ldflags="-extldflags=-static" -o ${BIN} main.go; \
-    mkdir -p /distroless/usr/local/bin; \
-    eleven checkStatic ${BIN}; \
-    eleven strip ${BIN}; \
-    cp ${BIN} /distroless/usr/local/bin;
+    eleven go build ${BUILD_BIN} main.go; \
+    eleven distroless ${BUILD_BIN};
 
   # :: dashboard
-  FROM golang:1.24-alpine AS dashboard
-  COPY --from=util /usr/local/bin /usr/local/bin
+  FROM 11notes/go:${GO_VERSION} AS dashboard
   COPY ./build/go/dashboard /go/dashboard
   ENV CGO_ENABLED=0
-  ARG BIN=/go/dashboard/dashboard
+  ARG BUILD_BIN=/go/dashboard/dashboard
 
   RUN set -ex; \
     apk --update --no-cache add \
-      build-base \
-      upx \
-      git \
       nodejs \
       npm; 
 
   RUN set -ex; \
     cd /go/dashboard; \
-    go build -ldflags="-extldflags=-static" -o ${BIN} main.go; \
-    mkdir -p /distroless/usr/local/bin; \
-    eleven checkStatic ${BIN}; \
-    eleven strip ${BIN}; \
-    cp ${BIN} /distroless/usr/local/bin;
+    eleven go build ${BUILD_BIN} main.go; \
+    eleven distroless ${BUILD_BIN};
 
   RUN set -ex; \
     git clone https://github.com/netbirdio/dashboard /dashboard;
@@ -100,7 +76,7 @@
 
   # :: file system
   FROM alpine AS file-system
-  COPY --from=util /usr/local/bin /usr/local/bin
+  COPY --from=util / /
   ARG APP_ROOT
   USER root
 
