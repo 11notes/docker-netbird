@@ -3,7 +3,7 @@
   "name": "netbird",
   "root": "/netbird",
   "semver": {
-    "version": "0.54.0"
+    "version": "0.54.1"
   },
   "readme": {
     "description": "Run netbird rootless and distroless from a single image.",
