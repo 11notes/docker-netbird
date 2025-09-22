@@ -2,6 +2,7 @@
   "image": "11notes/netbird",
   "name": "netbird",
   "root": "/netbird",
+  "platform":"amd64,arm64",
   "semver": {
     "version": "0.58.0"
   },
