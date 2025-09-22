@@ -16,15 +16,7 @@ ${{ github:> }}* ... this image is very small
 
 If you value security, simplicity and optimizations to the extreme, then this image might be for you.
 
-# COMPARISON 🏁
-Below you find a comparison between this image and the most used or original one.
-
-| **image** | 11notes/netbird | netbirdio/* |
-| ---: | :---: | :---: |
-| **image size on disk** | 44.6MB | 377.9MB |
-| **process UID/GID** | 1000/1000 | 0/0 |
-| **distroless?** | ✅ | ❌ |
-| **rootless?** | ✅ | ❌ |
+${{ content_comparison }}
 
 ${{ title_volumes }}
 * **${{ json_root }}/etc** - Directory of your management.json config
