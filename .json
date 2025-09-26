@@ -4,7 +4,7 @@
   "root": "/netbird",
   "platform": "amd64,arm64",
   "semver": {
-    "version": "0.58.1"
+    "version": "0.58.2"
   },
   "readme": {
     "description": "Run netbird rootless and distroless from a single image.",
