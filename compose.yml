@@ -1,0 +1,130 @@
+name: "netbird"
+
+x-image-netbird: &image
+  image: "11notes/netbird:0.59.0"
+  read_only: true
+
+services:
+  postgres:
+    image: "11notes/postgres:17"
+    read_only: true
+    environment:
+      TZ: "Europe/Zurich"
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_BACKUP_SCHEDULE: "0 3 * * *"
+    volumes:
+      - "postgres.etc:/postgres/etc"
+      - "postgres.var:/postgres/var"
+      - "postgres.backup:/postgres/backup"
+    tmpfs:
+      - "/postgres/run:uid=1000,gid=1000"
+      - "/postgres/log:uid=1000,gid=1000"
+    networks:
+      backend:
+    restart: "always"
+
+  dashboard:
+    <<: *image
+    environment:
+      NETBIRD_MGMT_API_ENDPOINT: "https://${NETBIRD_FQDN}"
+      NETBIRD_MGMT_GRPC_API_ENDPOINT: "https://${NETBIRD_FQDN}"
+      AUTH_AUDIENCE: "netbird-client"
+      AUTH_CLIENT_ID: "netbird-client"
+      AUTH_CLIENT_SECRET: 
+      AUTH_AUTHORITY: "https://${KEYCLOAK_FQDN}/realms/${KEYCLOAK_REALM}"
+      USE_AUTH0: false
+      AUTH_SUPPORTED_SCOPES: "openid"
+      NETBIRD_TOKEN_SOURCE: "accessToken"
+    entrypoint: ["/usr/local/bin/dashboard"]
+    volumes:
+      - "dashboard.var:/nginx/var"
+    tmpfs:
+      - "/nginx/cache:uid=1000,gid=1000"
+      - "/nginx/run:uid=1000,gid=1000"
+    networks:
+      frontend:
+    ports:
+      - "3000:3000/tcp"
+    healthcheck:
+      test: ["CMD", "/usr/local/bin/localhealth", "http://127.0.0.1:3000/ping", "-I"]
+      interval: 5s
+      timeout: 2s
+      start_period: 5s
+    restart: "always"
+
+  management:
+    depends_on:
+      postgres:
+        condition: "service_healthy"
+        restart: true
+    <<: *image
+    env_file: '.env'
+    environment:
+      TZ: "Europe/Zurich"
+      NETBIRD_STORE_ENGINE_POSTGRES_DSN: "host=postgres user=postgres password=${POSTGRES_PASSWORD} dbname=postgres port=5432"
+      NB_ACTIVITY_EVENT_STORE_ENGINE: "postgres"
+      NB_ACTIVITY_EVENT_POSTGRES_DSN: "host=postgres user=postgres password=${POSTGRES_PASSWORD} dbname=postgres port=5432"
+    entrypoint: ["/usr/local/bin/management"]
+    volumes:
+      - "management.etc:/netbird/etc"
+      - "management.var:/netbird/var"
+    networks:
+      frontend:
+      backend:
+    ports:
+      - "3080:80/tcp"
+      - "33073:33073/tcp"
+    sysctls:
+      net.ipv4.ip_unprivileged_port_start: 80
+    healthcheck:
+      test: ["CMD", "/usr/local/bin/localhealth", "http://127.0.0.1:9090/metrics", "-I"]
+      interval: 5s
+      timeout: 2s
+      start_period: 5s
+    restart: "always"
+
+  signal:
+    <<: *image
+    environment:
+      TZ: "Europe/Zurich"
+    entrypoint: ["/usr/local/bin/signal"]
+    command: [
+        "run",
+        "--log-file", "console",
+        "--log-level", "info"
+      ]
+    volumes:
+      - "signal.var:/netbird/var"
+    networks:
+      frontend:
+    ports:
+      - "10000:10000/tcp"
+    restart: "always"
+
+  relay:
+    <<: *image
+    environment:
+      TZ: "Europe/Zurich"
+      NB_LISTEN_ADDRESS: ":33080"
+      NB_EXPOSED_ADDRESS: "rels://${NETBIRD_FQDN}:443"
+      NB_AUTH_SECRET: ${NETBIRD_RELAY_SECRET}
+    entrypoint: ["/usr/local/bin/relay"]
+    networks:
+      frontend:
+    ports:
+      - "33080:33080/tcp"
+    restart: "always"
+
+volumes:
+  management.etc:
+  management.var:
+  dashboard.var:
+  signal.var:
+  postgres.etc:
+  postgres.var:
+  postgres.backup:
+
+networks:
+  frontend:
+  backend:
+    internal: true

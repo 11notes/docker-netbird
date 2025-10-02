@@ -1,22 +1,22 @@
 # ╔═════════════════════════════════════════════════════╗
 # ║                       SETUP                         ║
 # ╚═════════════════════════════════════════════════════╝
-  # GLOBAL
+# GLOBAL
   ARG APP_UID=1000 \
       APP_GID=1000 \
       BUILD_SRC=https://github.com/netbirdio/netbird.git \
       BUILD_ROOT="/go/netbird/management /go/netbird/relay /go/netbird/signal" \
-      GO_VERSION=1.24
+      GO_VERSION=1.25
 
-  # :: FOREIGN IMAGES
+# :: FOREIGN IMAGES
   FROM 11notes/nginx:stable AS distroless-nginx
-  FROM 11notes/distroless:curl AS distroless-curl
+  FROM 11notes/distroless:localhealth AS distroless-localhealth
   FROM 11notes/util AS util
 
 # ╔═════════════════════════════════════════════════════╗
 # ║                       BUILD                         ║
 # ╚═════════════════════════════════════════════════════╝
-  # :: netbird
+# :: NETBIRD
   FROM 11notes/go:${GO_VERSION} AS build
   ARG APP_VERSION \
       BUILD_SRC \
@@ -36,7 +36,7 @@
     done; \
     mv /distroless/usr/local/bin/management /distroless/usr/local/bin/netbird;
 
-  # :: management
+# :: CUSTOM MANAGEMENT
   FROM 11notes/go:${GO_VERSION} AS management
   COPY ./build/go/management /go/management
   ENV CGO_ENABLED=0
@@ -47,7 +47,7 @@
     eleven go build ${BUILD_BIN} main.go; \
     eleven distroless ${BUILD_BIN};
 
-  # :: dashboard
+# :: DASHBOARD
   FROM 11notes/go:${GO_VERSION} AS dashboard
   COPY ./build/go/dashboard /go/dashboard
   ENV CGO_ENABLED=0
@@ -74,7 +74,7 @@
     mkdir -p /distroless/nginx/var; \
     cp -R ./out/*  /distroless/nginx/var;
 
-  # :: file system
+# :: FILE SYSTEM
   FROM alpine AS file-system
   COPY --from=util / /
   ARG APP_ROOT
@@ -117,7 +117,7 @@
     COPY --from=management --chown=${APP_UID}:${APP_GID} /distroless/ /
     COPY --from=distroless-nginx --chown=${APP_UID}:${APP_GID} / /
     COPY --from=file-system --chown=${APP_UID}:${APP_GID} /distroless/ /
-    COPY --from=distroless-curl /usr/local/bin /usr/local/bin
+    COPY --from=distroless-localhealth / /
     COPY --chown=${APP_UID}:${APP_GID} ./rootfs/ /
 
 # :: PERSISTENT DATA
