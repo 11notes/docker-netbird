@@ -2,19 +2,18 @@
   "image": "11notes/netbird",
   "name": "netbird",
   "root": "/netbird",
-  "platform": "amd64,arm64",
   "semver": {
     "version": "0.59.2"
   },
   "readme": {
     "description": "Run netbird rootless and distroless from a single image.",
-    "introduction": "NetBird combines a WireGuard-based overlay network with Zero Trust Network Access, providing a unified open source platform for reliable and secure connectivity. Create your own selfhosted ZTNA mesh network.",
+    "introduction": "[NetBird](https://github.com/netbirdio/netbird) (created by [netbird](https://github.com/netbirdio)) combines a WireGuard-based overlay network with Zero Trust Network Access, providing a unified open source platform for reliable and secure connectivity. Create your own selfhosted ZTNA mesh network.",
     "built": {
       "netbirdio/netbird": "https://github.com/netbirdio/netbird"
     },
     "distroless": {
       "layers": [
-        "11notes/distroless:curl",
+        "11notes/distroless:localhealth",
         "11notes/distroless:nginx"
       ]
     },
