@@ -1,5 +1,6 @@
 {
   "image": "11notes/netbird",
+  "platform":"amd64,arm64",
   "name": "netbird",
   "root": "/netbird",
   "semver": {
