@@ -7,7 +7,7 @@ Run netbird rootless and distroless from a single image.
 
 # INTRODUCTION 📢
 
-NetBird combines a WireGuard-based overlay network with Zero Trust Network Access, providing a unified open source platform for reliable and secure connectivity. Create your own selfhosted ZTNA mesh network.
+[NetBird](https://github.com/netbirdio/netbird) (created by [netbird](https://github.com/netbirdio)) combines a WireGuard-based overlay network with Zero Trust Network Access, providing a unified open source platform for reliable and secure connectivity. Create your own selfhosted ZTNA mesh network.
 
 # SYNOPSIS 📖
 **What can I do with this?** This image will run netbird from a single image (not multiple) [rootless](https://github.com/11notes/RTFM/blob/main/linux/container/image/rootless.md) and [distroless](https://github.com/11notes/RTFM/blob/main/linux/container/image/distroless.md) for more security. Due to the nature of a single image and not multiple, you see in the [compose.yaml](https://github.com/11notes/docker-netbird/blob/master/compose.yaml) example that an ```entrypoint:``` has been defined for each service. This image also needs some environment variables present in your **.env** file. This image's defaults (management.json) as well as the example **.env** are to be used with Keycloak as your IdP and Traefik as your reverse proxy. You can however provide your own **management.json** file and use any IdP you like and use a different reverse proxy.
@@ -75,6 +75,8 @@ x-image-netbird: &image
 
 services:
   postgres:
+    # for more information about this image checkout:
+    # https://github.com/11notes/docker-postgres
     image: "11notes/postgres:17"
     read_only: true
     environment:
@@ -137,6 +139,8 @@ services:
     volumes:
       - "management.etc:/netbird/etc"
       - "management.var:/netbird/var"
+    tmpfs:
+      - "/tmp:uid=1000,gid=1000"
     networks:
       frontend:
       backend:
@@ -238,7 +242,7 @@ docker pull quay.io/11notes/netbird:0.59.2
 > [!IMPORTANT]
 >This image is not based on another image but uses [scratch](https://hub.docker.com/_/scratch) as the starting layer.
 >The image consists of the following distroless layers that were added:
->* [11notes/distroless:curl](https://github.com/11notes/docker-distroless/blob/master/curl.dockerfile) - app to execute HTTP requests
+>* [11notes/distroless:localhealth](https://github.com/11notes/docker-distroless/blob/master/localhealth.dockerfile) - app to execute HTTP requests only on 127.0.0.1
 >* 11notes/distroless:nginx
 
 # BUILT WITH 🧰
@@ -256,4 +260,4 @@ docker pull quay.io/11notes/netbird:0.59.2
 # ElevenNotes™️
 This image is provided to you at your own risk. Always make backups before updating an image to a different version. Check the [releases](https://github.com/11notes/docker-netbird/releases) for breaking changes. If you have any problems with using this image simply raise an [issue](https://github.com/11notes/docker-netbird/issues), thanks. If you have a question or inputs please create a new [discussion](https://github.com/11notes/docker-netbird/discussions) instead of an issue. You can find all my other repositories on [github](https://github.com/11notes?tab=repositories).
 
-*created 03.10.2025, 07:19:06 (CET)*
+*created 03.10.2025, 08:56:48 (CET)*
