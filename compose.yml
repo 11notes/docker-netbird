@@ -6,6 +6,8 @@ x-image-netbird: &image
 
 services:
   postgres:
+    # for more information about this image checkout:
+    # https://github.com/11notes/docker-postgres
     image: "11notes/postgres:17"
     read_only: true
     environment:
@@ -68,6 +70,8 @@ services:
     volumes:
       - "management.etc:/netbird/etc"
       - "management.var:/netbird/var"
+    tmpfs:
+      - "/tmp:uid=1000,gid=1000"
     networks:
       frontend:
       backend:
