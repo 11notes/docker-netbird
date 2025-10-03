@@ -4,7 +4,7 @@
 # GLOBAL
   ARG APP_UID=1000 \
       APP_GID=1000 \
-      BUILD_SRC=https://github.com/netbirdio/netbird.git \
+      BUILD_SRC=netbirdio/netbird.git \
       BUILD_ROOT="/go/netbird/management /go/netbird/relay /go/netbird/signal" \
       GO_VERSION=1.25
 
@@ -23,14 +23,15 @@
       BUILD_ROOT
 
   RUN set -ex; \
-    git clone ${BUILD_SRC} -b v${APP_VERSION}; \
-    sed -i 's/"development"/"v'${APP_VERSION}'"/' /go/netbird/version/version.go;
+    eleven git clone ${BUILD_SRC} v${APP_VERSION}; \
+    sed -i 's/"development"/"v'${APP_VERSION}'"/' /go/netbird/version/version.go; \
+    sed -i 's|"gorm.io/driver/sqlite"|"github.com/glebarez/sqlite"|' /go/netbird/management/server/geolocation/database.go; \
+    sed -i 's|"gorm.io/driver/sqlite"|"github.com/glebarez/sqlite"|' /go/netbird/management/server/geolocation/store.go;
 
   RUN set -ex; \
     for BUILD in ${BUILD_ROOT}; do \
       cd ${BUILD}; \
       BUILD_BIN="${BUILD}/$(echo ${BUILD} | awk -F '/' '{print $4}')"; \
-      go mod tidy; \
       eleven go build ${BUILD_BIN} main.go; \
       eleven distroless ${BUILD_BIN}; \
     done; \
@@ -39,7 +40,6 @@
 # :: CUSTOM MANAGEMENT
   FROM 11notes/go:${GO_VERSION} AS management
   COPY ./build/go/management /go/management
-  ENV CGO_ENABLED=0
   ARG BUILD_BIN=/go/management/management
 
   RUN set -ex; \
@@ -50,7 +50,6 @@
 # :: DASHBOARD
   FROM 11notes/go:${GO_VERSION} AS dashboard
   COPY ./build/go/dashboard /go/dashboard
-  ENV CGO_ENABLED=0
   ARG BUILD_BIN=/go/dashboard/dashboard
 
   RUN set -ex; \
