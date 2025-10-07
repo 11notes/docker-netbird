@@ -1,10 +1,10 @@
 {
   "image": "11notes/netbird",
-  "platform":"amd64,arm64",
+  "platform": "amd64,arm64",
   "name": "netbird",
   "root": "/netbird",
   "semver": {
-    "version": "0.59.2"
+    "version": "0.59.3"
   },
   "readme": {
     "description": "Run netbird rootless and distroless from a single image.",
