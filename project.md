@@ -59,4 +59,4 @@ ${{ content_tips }}
 
 ${{ title_caution }}
 ${{ github:> [!CAUTION] }}
-${{ github:> }}* Because this image is distroless, it only works with PostgreSQL, **not SQLite**. The GeoLocation middleware is also disabled because of this!
+${{ github:> }}* Because this image is distroless, it only works with PostgreSQL, **not SQLite**!
