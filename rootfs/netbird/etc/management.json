@@ -3,7 +3,7 @@
     {
       "Proto": "udp",
       "URI": "stun:${STUN_FQDN_AND_PORT}",
-      "Secret": "$STUN_SECRET"
+      "Secret": "${STUN_SECRET}"
     }
   ],
   "TURNConfig": {
