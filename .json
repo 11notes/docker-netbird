@@ -19,6 +19,7 @@
       ]
     },
     "comparison": {
+      "sum":true,
       "images": [
         "netbirdio/dashboard",
         "netbirdio/signal",
