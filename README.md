@@ -35,10 +35,7 @@ Below you find a comparison between this image and the most used or original one
 | **image** | **size on disk** | **init default as** | **[distroless](https://github.com/11notes/RTFM/blob/main/linux/container/image/distroless.md)** | supported architectures
 | ---: | ---: | :---: | :---: | :---: |
 | 11notes/netbird | 69MB | 1000:1000 | ✅ | amd64, arm64 |
-| netbirdio/dashboard
-netbirdio/signal
-netbirdio/relay
-netbirdio/management | 394MB | 0:0 | ❌ | amd64, arm64, armv7 |
+| netbirdio/* | 394MB | 0:0 | ❌ | amd64, arm64, armv7 |
 
 # VOLUMES 📁
 * **/netbird/etc** - Directory of your management.json config
@@ -260,4 +257,4 @@ docker pull quay.io/11notes/netbird:0.59.13
 # ElevenNotes™️
 This image is provided to you at your own risk. Always make backups before updating an image to a different version. Check the [releases](https://github.com/11notes/docker-netbird/releases) for breaking changes. If you have any problems with using this image simply raise an [issue](https://github.com/11notes/docker-netbird/issues), thanks. If you have a question or inputs please create a new [discussion](https://github.com/11notes/docker-netbird/discussions) instead of an issue. You can find all my other repositories on [github](https://github.com/11notes?tab=repositories).
 
-*created 14.11.2025, 10:52:38 (CET)*
+*created 14.11.2025, 11:01:17 (CET)*
