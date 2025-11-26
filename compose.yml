@@ -8,7 +8,7 @@ services:
   postgres:
     # for more information about this image checkout:
     # https://github.com/11notes/docker-postgres
-    image: "11notes/postgres:17"
+    image: "11notes/postgres:18"
     read_only: true
     environment:
       TZ: "Europe/Zurich"
