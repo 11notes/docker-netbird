@@ -4,7 +4,7 @@
   "name": "netbird",
   "root": "/netbird",
   "semver": {
-    "version": "0.59.13"
+    "version": "0.60.2"
   },
   "readme": {
     "description": "Run netbird rootless and distroless from a single image.",
@@ -19,7 +19,7 @@
       ]
     },
     "comparison": {
-      "sum":true,
+      "sum": true,
       "images": [
         "netbirdio/dashboard",
         "netbirdio/signal",
