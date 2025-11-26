@@ -15,7 +15,7 @@ func main() {
 		text, _ := ioutil.ReadFile(path)
 		replaceEnv(path, string(text))
 	}
-	if err := syscall.Exec("/usr/local/bin/netbird", []string{"management", "management", "--config", "/netbird/etc/management.json", "--log-file", "console", "--log-level", "info", "--disable-anonymous-metrics", "--disable-geolite-update"}, os.Environ()); err != nil {
+	if err := syscall.Exec("/usr/local/bin/netbird", []string{"management", "management", "--config", "/netbird/etc/management.json", "--log-file", "console", "--log-level", "info", "--disable-anonymous-metrics", "--disable-geolite-update", "--dns-domain", getEnv("NETBIRD_MGMT_DNS_DOMAIN", "netbird.selfhosted")}, os.Environ()); err != nil {
 		os.Exit(1)
 	}
 }
