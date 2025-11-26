@@ -88,11 +88,15 @@ jobs:
             );
 
             const matrix = {include:[]};
-            for(const platform of platforms){
-              switch(platform){
-                case "amd64": matrix.include.push({platform:platform, runner:"ubuntu-24.04"}); break;
-                case "arm64": matrix.include.push({platform:platform, runner:"ubuntu-24.04-arm"}); break;
-                case "arm/v7": matrix.include.push({platform:platform, runner:"ubuntu-24.04-arm"}); break;
+            if("${{ github.event.inputs.readme }}" === "true" && "${{ github.event.inputs.build }}" === "false"){
+              matrix.include.push({platform:"amd64", runner:"ubuntu-24.04"});
+            }else{
+              for(const platform of platforms){
+                switch(platform){
+                  case "amd64": matrix.include.push({platform:platform, runner:"ubuntu-24.04"}); break;
+                  case "arm64": matrix.include.push({platform:platform, runner:"ubuntu-24.04-arm"}); break;
+                  case "arm/v7": matrix.include.push({platform:platform, runner:"ubuntu-24.04-arm"}); break;
+                }
               }
             }
 
