@@ -1,7 +1,7 @@
 name: "netbird"
 
 x-image-netbird: &image
-  image: "11notes/netbird:0.62.3"
+  image: "11notes/netbird:0.63.0"
   read_only: true
 
 services:
