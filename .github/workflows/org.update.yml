@@ -7,6 +7,16 @@ on:
         description: 'base64 encoded json string'
         required: true
 
+      release:
+        description: 'create a release'
+        required: false
+        default: 'true'
+
+      readme:
+        description: 'create a readme'
+        required: false
+        default: 'true'
+
 jobs:
   update:
     runs-on: ubuntu-latest
@@ -37,7 +47,14 @@ jobs:
               const { inspect } = require('node:util');
               const { existsSync, readFileSync, writeFileSync } = require('node:fs');
               const { resolve } = require('node:path');
-              const semver = require('semver')
+              const semver = require('semver');
+
+              const semverExceptions = (s) => {
+                switch('${{ github.event.repository.name }}'){
+                  case 'docker-chrony': core.warning(`semver exception found for chrony version ${s}, setting version to major.minor`); return(s.split('.').slice(0, 2).join('.'));
+                }
+                return(s);
+              }
 
               // defaults
               const json = `${{ toJSON(github.event.inputs) }}`;
@@ -81,8 +98,8 @@ jobs:
               }
 
               // semver
-              const latest = semver.valid(semver.coerce(job.inputs.version));
-              const current = semver.valid(semver.coerce(job.json.semver.version));
+              const latest = semverExceptions(semver.valid(semver.coerce(job.inputs.version)));
+              const current = semverExceptions(semver.valid(semver.coerce(job.json.semver.version)));
               const tag = semver.valid(semver.coerce(job.inputs.tag));
               const checks = {latestTagExists:true};
 
@@ -100,9 +117,14 @@ jobs:
                 core.info(`new ${semver.diff(current, latest)} release found (${latest}), updating ...`)
                 job.json.semver.version = latest;
 
-                // check if app has a build version
-                if(job.inputs?.build){
-                  job.json.build.args.version_build = job.inputs.build;
+                // check if app has additional parameters
+                const build = {};
+                if(job.inputs?.build && typeof(job.inputs.build) === 'string'){
+                  build.args = {
+                    version_build:job.inputs.build,
+                  };
+                }else if(job.inputs?.build?.args){
+                  build.args = job.inputs.build.args;
                 }
 
                 // update .json
@@ -111,9 +133,14 @@ jobs:
 
                   // export variables
                   core.exportVariable('WORKFLOW_UPDATE', true);
+                  core.exportVariable('WORKFLOW_UPDATE_BASE64JSON', Buffer.from(JSON.stringify({build:build})).toString('base64'));
                   if(job.inputs?.unraid){
                     core.exportVariable('WORKFLOW_UPDATE_UNRAID', 'true');
-                    core.exportVariable('WORKFLOW_UPDATE_UNRAID_BASE64JSON', Buffer.from(JSON.stringify({semversuffix:"unraid", uid:99, gid:100})).toString('base64'));
+                    core.exportVariable('WORKFLOW_UPDATE_UNRAID_BASE64JSON', Buffer.from(JSON.stringify({semversuffix:"unraid", uid:99, gid:100, build:build})).toString('base64'));
+                  }
+                  if(job.inputs?.nobody){
+                    core.exportVariable('WORKFLOW_UPDATE_NOBODY', 'true');
+                    core.exportVariable('WORKFLOW_UPDATE_NOBODY_BASE64JSON', Buffer.from(JSON.stringify({semversuffix:"nobody", uid:65534, gid:65534, build:build})).toString('base64'));
                   }
                   core.exportVariable('LATEST_TAG', semver.inc(tag, semver.diff(current, latest)));
                   core.exportVariable('LATEST_VERSION', latest);
@@ -127,8 +154,6 @@ jobs:
 
               core.info(inspect(job, {showHidden:false, depth:null, colors:true}));
             })();
-
-
 
       - name: update / checkout
         id: checkout
@@ -155,7 +180,7 @@ jobs:
           workflow: docker.yml
           wait-for-completion: false
           token: "${{ secrets.REPOSITORY_TOKEN }}"
-          inputs: '{ "release":"true", "readme":"true", "run-name":"update v${{ env.LATEST_VERSION }}" }'
+          inputs: '{ "release":"${{ github.event.inputs.release }}", "readme":"${{ github.event.inputs.readme }}", "run-name":"update v${{ env.LATEST_VERSION }}", "etc":"${{ env.WORKFLOW_UPDATE_BASE64JSON }}" }'
           ref: "v${{ env.LATEST_TAG }}"
 
       - name: update / build container image for unraid
@@ -166,4 +191,14 @@ jobs:
           wait-for-completion: false
           token: "${{ secrets.REPOSITORY_TOKEN }}"
           inputs: '{ "release":"false", "readme":"false", "run-name":"update unraid v${{ env.LATEST_VERSION }}", "etc":"${{ env.WORKFLOW_UPDATE_UNRAID_BASE64JSON }}" }'
+          ref: "v${{ env.LATEST_TAG }}"
+
+      - name: update / build container image for nobody
+        if: env.WORKFLOW_UPDATE_NOBODY == 'true' && steps.checkout.outcome == 'success' && steps.build.outcome == 'success'
+        uses: the-actions-org/workflow-dispatch@3133c5d135c7dbe4be4f9793872b6ef331b53bc7
+        with:
+          workflow: docker.yml
+          wait-for-completion: false
+          token: "${{ secrets.REPOSITORY_TOKEN }}"
+          inputs: '{ "release":"false", "readme":"false", "run-name":"update nobody v${{ env.LATEST_VERSION }}", "etc":"${{ env.WORKFLOW_UPDATE_NOBODY_BASE64JSON }}" }'
           ref: "v${{ env.LATEST_TAG }}"

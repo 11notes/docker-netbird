@@ -302,6 +302,10 @@ jobs:
               core.exportVariable('DOCKER_IMAGE_NAME_AND_VERSION', `${docker.image.name}:${docker.app.version}`);
               core.setOutput('DOCKER_IMAGE_NAME_AND_VERSION', `${docker.image.name}:${docker.app.version}`);
 
+              core.setOutput('DOCKER_IMAGE_TAG_LATEST', (
+                docker.image.tags.includes('latest') ? "true" : "false"
+              ));
+
               core.exportVariable('WORKFLOW_BUILD', docker.image.build);
               core.setOutput('WORKFLOW_BUILD', docker.image.build);
               core.exportVariable('WORKFLOW_BUILD_NO_CACHE', !docker.cache.enable);
@@ -585,6 +589,7 @@ jobs:
       DOCKER_IMAGE_DESCRIPTION: ${{ needs.docker.outputs.DOCKER_IMAGE_DESCRIPTION }}
       DOCKER_IMAGE_NAME_AND_VERSION: ${{ needs.docker.outputs.DOCKER_IMAGE_NAME_AND_VERSION }}
       DOCKER_IMAGE_ARGUMENTS: ${{ needs.docker.outputs.DOCKER_IMAGE_ARGUMENTS }}
+      DOCKER_IMAGE_TAG_LATEST: ${{ needs.docker.outputs.DOCKER_IMAGE_TAG_LATEST }}
 
     permissions:
       contents: write
@@ -680,3 +685,21 @@ jobs:
               "has_wiki":false
             }' \
             --fail
+
+      # ╔═════════════════════════════════════════════════════╗
+      # ║        REMOVE DEFAULT IMAGE TAG IF PRESENT          ║
+      # ╚═════════════════════════════════════════════════════╝
+      # REMOVE LATEST TAG FROM DOCKER HUB
+      - name: docker hub / delete latest tag if needed
+        if: env.DOCKER_IMAGE_TAG_LATEST == 'false'
+        run: |
+          TOKEN=$(curl --request POST \
+            -s \
+            --url https://hub.docker.com/v2/auth/token \
+            --header 'content-type: application/json' \
+            --data '{
+              "identifier":"11notes",
+              "secret":"${{ secrets.DOCKER_TOKEN }}"
+            }' \
+            --fail | jq -r ".access_token")
+          curl -s -H "Authorization: Bearer ${TOKEN}" -X DELETE https://hub.docker.com/v2/repositories/${{ env.DOCKER_IMAGE_NAME }}/tags/latest | echo ":latest tag not found"
