@@ -26,7 +26,9 @@
     eleven git clone ${BUILD_SRC} v${APP_VERSION}; \
     sed -i 's/"development"/"v'${APP_VERSION}'"/' /go/netbird/version/version.go; \
     sed -i 's|"gorm.io/driver/sqlite"|"github.com/glebarez/sqlite"|' /go/netbird/management/server/geolocation/database.go; \
-    sed -i 's|"gorm.io/driver/sqlite"|"github.com/glebarez/sqlite"|' /go/netbird/management/server/geolocation/store.go;
+    sed -i 's|"gorm.io/driver/sqlite"|"github.com/glebarez/sqlite"|' /go/netbird/management/server/geolocation/store.go; \
+    sed -i 's|"github.com/dexidp/dex/storage/sql"|"github.com/11notes/docker-netbird/build/go/dexidp/dex/storage/sql"|' /go/netbird/idp/dex/config.go; \
+    sed -i 's|"github.com/dexidp/dex/storage/sql"|"github.com/11notes/docker-netbird/build/go/dexidp/dex/storage/sql"|' /go/netbird/idp/dex/provider.go;
 
   RUN set -ex; \
     for BUILD in ${BUILD_ROOT}; do \
