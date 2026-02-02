@@ -26,9 +26,17 @@
     eleven git clone ${BUILD_SRC} v${APP_VERSION}; \
     sed -i 's/"development"/"v'${APP_VERSION}'"/' /go/netbird/version/version.go; \
     sed -i 's|"gorm.io/driver/sqlite"|"github.com/glebarez/sqlite"|' /go/netbird/management/server/geolocation/database.go; \
-    sed -i 's|"gorm.io/driver/sqlite"|"github.com/glebarez/sqlite"|' /go/netbird/management/server/geolocation/store.go; \
-    sed -i 's|"github.com/dexidp/dex/storage/sql"|"github.com/11notes/docker-netbird/build/go/dexidp/dex/storage/sql"|' /go/netbird/idp/dex/config.go; \
-    sed -i 's|"github.com/dexidp/dex/storage/sql"|"github.com/11notes/docker-netbird/build/go/dexidp/dex/storage/sql"|' /go/netbird/idp/dex/provider.go;
+    sed -i 's|"gorm.io/driver/sqlite"|"github.com/glebarez/sqlite"|' /go/netbird/management/server/geolocation/store.go;
+
+  RUN set -ex; \
+    eleven git clone dexidp/dex.git;
+
+  COPY ./build/go/dex /go/dex
+  #COPY ./build/go/netbird/idp/dex /go/netbird/idp/dex
+
+  RUN set -ex; \
+    cd /go/netbird; \
+    go mod edit -replace github.com/dexidp/dex=/go/dex;
 
   RUN set -ex; \
     for BUILD in ${BUILD_ROOT}; do \

@@ -1,4 +1,9 @@
 {
+  "EmbeddedIdP": {
+    "Enabled": false,
+    "DataDir": "/netbird/etc"
+  },
+  "EncryptionKey": "${NETBIRD_DATASTORE_ENCRYPTION_KEY}",
   "Stuns": [
     {
       "Proto": "udp",
