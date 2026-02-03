@@ -32,7 +32,6 @@
     eleven git clone dexidp/dex.git;
 
   COPY ./build/go/dex /go/dex
-  #COPY ./build/go/netbird/idp/dex /go/netbird/idp/dex
 
   RUN set -ex; \
     cd /go/netbird; \
