@@ -25,22 +25,22 @@ ${{ title_volumes }}
 # EXAMPLE ENV FILE 📑
 ```ini
 # postgres settings
-POSTGRES_PASSWORD=
+POSTGRES_PASSWORD=netbird
 
 # netbird settings
-NETBIRD_RELAY_SECRET=
-NETBIRD_DATASTORE_ENCRYPTION_KEY=
+NETBIRD_RELAY_SECRET=eHAzbWY5NHBRNmwzc1RTcQ==
+NETBIRD_DATASTORE_ENCRYPTION_KEY=eHAzbWY5NHBRNmwzc1RTcUNOMzRBcnhSajhsbUxsbWc=
 NETBIRD_FQDN=netbird.domain.com
 
 # Keycloak settings
 KEYCLOAK_FQDN=keycloak.domain.com
 KEYCLOAK_REALM=netbird
-KEYCLOAK_CLIENT_SECRET=
+KEYCLOAK_CLIENT_SECRET=wDMyEH0vIeUL0QGXtHyKIYw4D3gnJl7D
 
 # STUN/TURN configuration
 STUN_FQDN_AND_PORT=turn.domain.com:5349
 TURN_FQDN_AND_PORT=turn.domain.com:5349
-TURN_SECRET=
+TURN_SECRET=Ywmpd2lvg9FYsbecfbgLI8uJaHO0DfX9
 ```
 
 ${{ content_compose }}
