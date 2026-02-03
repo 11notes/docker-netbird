@@ -44,22 +44,22 @@ Below you find a comparison between this image and the most used or original one
 # EXAMPLE ENV FILE 📑
 ```ini
 # postgres settings
-POSTGRES_PASSWORD=
+POSTGRES_PASSWORD=netbird
 
 # netbird settings
-NETBIRD_RELAY_SECRET=
-NETBIRD_DATASTORE_ENCRYPTION_KEY=
+NETBIRD_RELAY_SECRET=eHAzbWY5NHBRNmwzc1RTcQ==
+NETBIRD_DATASTORE_ENCRYPTION_KEY=eHAzbWY5NHBRNmwzc1RTcUNOMzRBcnhSajhsbUxsbWc=
 NETBIRD_FQDN=netbird.domain.com
 
 # Keycloak settings
 KEYCLOAK_FQDN=keycloak.domain.com
 KEYCLOAK_REALM=netbird
-KEYCLOAK_CLIENT_SECRET=
+KEYCLOAK_CLIENT_SECRET=wDMyEH0vIeUL0QGXtHyKIYw4D3gnJl7D
 
 # STUN/TURN configuration
 STUN_FQDN_AND_PORT=turn.domain.com:5349
 TURN_FQDN_AND_PORT=turn.domain.com:5349
-TURN_SECRET=
+TURN_SECRET=Ywmpd2lvg9FYsbecfbgLI8uJaHO0DfX9
 ```
 
 # COMPOSE ✂️
@@ -257,4 +257,4 @@ docker pull quay.io/11notes/netbird:0.64.4
 # ElevenNotes™️
 This image is provided to you at your own risk. Always make backups before updating an image to a different version. Check the [releases](https://github.com/11notes/docker-netbird/releases) for breaking changes. If you have any problems with using this image simply raise an [issue](https://github.com/11notes/docker-netbird/issues), thanks. If you have a question or inputs please create a new [discussion](https://github.com/11notes/docker-netbird/discussions) instead of an issue. You can find all my other repositories on [github](https://github.com/11notes?tab=repositories).
 
-*created 03.02.2026, 00:14:25 (CET)*
+*created 03.02.2026, 10:49:28 (CET)*
