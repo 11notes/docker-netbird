@@ -71,6 +71,8 @@ jobs:
                         core.setFailed(`input does not contain valid semver version: ${inspect(job.inputs, {showHidden:false, depth:null, colors:true})}`);
                       }else if(!job.inputs?.tag){
                         core.setFailed(`input does not contain valid git tag: ${inspect(job.inputs, {showHidden:false, depth:null, colors:true})}`);
+                      }else if(job.inputs.version == 'null' || null === job.inputs.version){
+                        core.setFailed(`input version is null: ${inspect(job.inputs, {showHidden:false, depth:null, colors:true})}`);
                       }
                     }catch(e){
                       core.setFailed(`could not parse github.event.inputs.etc: ${n.etc} (${Buffer.from(n.etc, 'base64').toString('ascii')})`);
@@ -101,19 +103,19 @@ jobs:
               const latest = semverExceptions(semver.valid(semver.coerce(job.inputs.version)));
               const current = semverExceptions(semver.valid(semver.coerce(job.json.semver.version)));
               const tag = semver.valid(semver.coerce(job.inputs.tag));
-              const checks = {latestTagExists:true};
+              const checks = {latestTagExists:false};
 
               try{
                 const tag = await fetch(`https://hub.docker.com/v2/repositories/${job.json.image}/tags/${latest}`);
-                if(tag.status === 404){
-                  checks.latestTagExists = false;
+                if(tag.status === 200){
+                  checks.latestTagExists = true;
                 }
               }catch(e){
                 core.warning(e);
               }
 
               // compare
-              if((latest && latest !== current) || !checks.latestTagExists){
+              if(latest && latest !== current && !checks.latestTagExists){
                 core.info(`new ${semver.diff(current, latest)} release found (${latest}), updating ...`)
                 job.json.semver.version = latest;
 
