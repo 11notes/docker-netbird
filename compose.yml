@@ -9,7 +9,7 @@ x-lockdown: &lockdown
 
 
 x-image-netbird: &image
-  image: "11notes/netbird:0.65.0"
+  image: "11notes/netbird:0.65.1"
   <<: *lockdown
 
 services:
