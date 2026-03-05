@@ -228,6 +228,20 @@ jobs:
               merge_tags:[],
             };
 
+            try{
+              const response = await fetch('https://raw.githubusercontent.com/11notes/static/refs/heads/main/src/semver/latest.json');
+              if(!response.ok){
+                throw new Error(`error fetching OpenSSL version: ${response.status}`);
+              }
+              const result = await response.json();
+              for(const dep in result){
+                docker.app[`${dep}_version`] = `${result[dep]}`;
+                core.info(`setting APP_${String(dep).toUpperCase()}_VERSION to ${result[dep]}`);
+              }
+            }catch(e){
+              core.warning(e);
+            }
+
             docker.cache.name = `${docker.image.name}:${docker.image.prefix}buildcache${docker.image.suffix}`;
             docker.cache.grype = `${docker.cache.registry}${docker.image.name}:${docker.image.prefix}grype${docker.image.suffix}`;
             docker.app.prefix = docker.image.prefix;
