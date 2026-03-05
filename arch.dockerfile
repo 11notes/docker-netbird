@@ -29,7 +29,7 @@
     sed -i 's|"gorm.io/driver/sqlite"|"github.com/glebarez/sqlite"|' /go/netbird/management/server/geolocation/store.go;
 
   RUN set -ex; \
-    eleven git clone dexidp/dex.git;
+    eleven git clone dexidp/dex.git v2.44.0;
 
   COPY ./build/go/dex /go/dex
 
