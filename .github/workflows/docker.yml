@@ -229,7 +229,7 @@ jobs:
             };
 
             try{
-              const response = await fetch('https://raw.githubusercontent.com/11notes/static/refs/heads/main/src/semver/latest.json');
+              const response = await fetch('https://raw.githubusercontent.com/11notes/static/refs/heads/master/src/semver/latest.json');
               if(!response.ok){
                 throw new Error(`error fetching OpenSSL version: ${response.status}`);
               }
