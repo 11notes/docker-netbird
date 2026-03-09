@@ -2,11 +2,11 @@
 # ║                       SETUP                         ║
 # ╚═════════════════════════════════════════════════════╝
 # GLOBAL
-  ARG APP_UID=1000 \
-      APP_GID=1000 \
+  ARG APP_UID= \
+      APP_GID= \
       BUILD_SRC=netbirdio/netbird.git \
       BUILD_ROOT="/go/netbird/management /go/netbird/relay /go/netbird/signal" \
-      GO_VERSION=1.25
+      APP_GO_VERSION=
 
 # :: FOREIGN IMAGES
   FROM 11notes/nginx:stable AS distroless-nginx
@@ -17,7 +17,7 @@
 # ║                       BUILD                         ║
 # ╚═════════════════════════════════════════════════════╝
 # :: NETBIRD
-  FROM 11notes/go:${GO_VERSION} AS build
+  FROM 11notes/go:${APP_GO_VERSION} AS build
   ARG APP_VERSION \
       BUILD_SRC \
       BUILD_ROOT
@@ -47,7 +47,7 @@
     mv /distroless/usr/local/bin/management /distroless/usr/local/bin/netbird;
 
 # :: CUSTOM MANAGEMENT
-  FROM 11notes/go:${GO_VERSION} AS management
+  FROM 11notes/go:${APP_GO_VERSION} AS management
   COPY ./build/go/management /go/management
   ARG BUILD_BIN=/go/management/management
 
@@ -57,7 +57,7 @@
     eleven distroless ${BUILD_BIN};
 
 # :: DASHBOARD
-  FROM 11notes/go:${GO_VERSION} AS dashboard
+  FROM 11notes/go:${APP_GO_VERSION} AS dashboard
   COPY ./build/go/dashboard /go/dashboard
   ARG BUILD_BIN=/go/dashboard/dashboard
 
