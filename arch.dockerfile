@@ -4,9 +4,9 @@
 # GLOBAL
   ARG APP_UID= \
       APP_GID= \
+      APP_GO_VERSION=0 \
       BUILD_SRC=netbirdio/netbird.git \
-      BUILD_ROOT="/go/netbird/management /go/netbird/relay /go/netbird/signal" \
-      APP_GO_VERSION=
+      BUILD_ROOT="/go/netbird/management /go/netbird/relay /go/netbird/signal"
 
 # :: FOREIGN IMAGES
   FROM 11notes/nginx:stable AS distroless-nginx
