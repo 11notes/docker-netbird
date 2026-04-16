@@ -55,6 +55,7 @@ jobs:
               const semverExceptions = (s) => {
                 switch('${{ github.event.repository.name }}'){
                   case 'docker-chrony': core.warning(`semver exception found for chrony version ${s}, setting version to major.minor`); return(s.split('.').slice(0, 2).join('.'));
+                  case 'docker-cron': core.warning(`semver exception found for cron version ${s}, setting version to major.minor`); return(s.split('.').slice(0, 2).join('.'));
                 }
                 return(s);
               }
@@ -171,6 +172,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          echo "WORKFLOW_UPDATE_PRE_COMMIT=$(git log --oneline | head -n 1 | awk -F ' ' '{print $1}')" >> "${GITHUB_ENV}"
           git add .json
           git commit -m "chore: auto upgrade to v${{ env.LATEST_VERSION }}"
           git push origin HEAD:master
@@ -192,6 +194,13 @@ jobs:
           token: "${{ secrets.REPOSITORY_TOKEN }}"
           inputs: '{ "release":"${{ github.event.inputs.release }}", "readme":"${{ github.event.inputs.readme }}", "run-name":"update v${{ env.LATEST_VERSION }}", "etc":"${{ env.WORKFLOW_UPDATE_BASE64JSON }}" }'
           ref: "v${{ env.LATEST_TAG }}"
+
+      - name: "update / revert if build failed"
+        if: env.WORKFLOW_UPDATE == 'true' && failure()
+        run: |
+          git reset --hard ${{ env.WORKFLOW_UPDATE_PRE_COMMIT }}
+          git push -f
+          git push --delete origin v${{ env.LATEST_TAG }}
 
       - name: update / build container image for unraid
         if: env.WORKFLOW_UPDATE_UNRAID == 'true' && steps.build.outputs.workflow-conclusion == 'success'

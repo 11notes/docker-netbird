@@ -266,7 +266,9 @@ jobs:
             docker.app.prefix = docker.image.prefix;
             docker.app.suffix = docker.image.suffix;
 
-            const semver = docker.app.version.split('.');
+            const semver = (
+              (/stable|latest/i.test(docker.app.version)) ? [] : docker.app.version.split('.')
+            );
             // setup tags
               if(!opt.dot?.semver?.disable?.rolling && !opt.input.etc?.semver?.disable?.rolling){
                 docker.image.tags.push('rolling');
@@ -356,6 +358,7 @@ jobs:
                   try{
                     const file = readFileSync(path).toString();
                     switch(true){
+                      case /11notes\/alpine\:stable/ig.test(file): core.exportVariable('WORKFLOW_IMAGE_DEPENDENCY', '11notes-alpine-stable'); break;
                       case /11notes\/go\:\$\{APP_GO_VERSION\}/ig.test(file): core.exportVariable('WORKFLOW_IMAGE_DEPENDENCY', 'go'); break;
                       case /11notes\/python\:\$\{APP_PYTHON_VERSION\}/ig.test(file): core.exportVariable('WORKFLOW_IMAGE_DEPENDENCY', 'python'); break;
                       case /11notes\/php\:\$\{APP_PHP_VERSION\}/ig.test(file): core.exportVariable('WORKFLOW_IMAGE_DEPENDENCY', 'php'); break;
@@ -700,7 +703,7 @@ jobs:
 
       # CREATE MAKRDOWN OF README.md
       - name: README.md / create
-        if: github.event.inputs.readme == 'true'
+        if: github.event.inputs.readme == 'true' && (steps.image-build.outcome == 'success' || inputs.run-name == 'readme')
         id: github-readme
         continue-on-error: true
         uses: 11notes/action-docker-readme@v1
