@@ -2,9 +2,22 @@ name: update
 
 on:
   workflow_dispatch:
+    inputs:
+      job:
+        description: 'which job to run from an external trigger'
+        type: string
+        required: false
 
 jobs:
+  # ╔═════════════════════════════════════════════════════╗
+  # ║                                                     ║
+  # ║                                                     ║
+  # ║            CHECK FOR AVAILABLE UPDATES              ║
+  # ║                                                     ║
+  # ║                                                     ║
+  # ╚═════════════════════════════════════════════════════╝
   update:
+    if: ${{ github.event.inputs.job == 'update' }}
     runs-on: ubuntu-latest
 
     permissions:
