@@ -1,10 +1,10 @@
-name: update
+name: run
 
 on:
   workflow_dispatch:
     inputs:
       job:
-        description: 'which job to run from an external trigger'
+        description: 'which job to run'
         type: string
         required: false
 
