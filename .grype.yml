@@ -1,0 +1,3 @@
+ignore:
+  - vulnerability: "CVE-2026-27143"
+    reason: "false positiv on go1.26.2"
