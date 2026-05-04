@@ -1,4 +1,4 @@
-name: run
+name: update
 
 on:
   workflow_dispatch:

@@ -1,8 +1,12 @@
-name: docker
+name: org.container
 run-name: ${{ inputs.run-name }}
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+  GRYPE_MATCH_GOLANG_USING_CPES: true
+  GRYPE_MATCH_DOTNET_USING_CPES: true
+  GRYPE_MATCH_JAVASCRIPT_USING_CPES: true
+  GRYPE_MATCH_PYTHON_USING_CPES: true
 
 on:
   workflow_dispatch:

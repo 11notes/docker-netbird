@@ -59,7 +59,7 @@ jobs:
         id: build
         uses: the-actions-org/workflow-dispatch@3133c5d135c7dbe4be4f9793872b6ef331b53bc7 # v4.0.0
         with:
-          workflow: docker.yml
+          workflow: org.container.yml
           wait-for-completion: true
           token: "${{ secrets.REPOSITORY_TOKEN }}"
           inputs: '{ "release":"${{ github.event.inputs.release }}", "readme":"${{ github.event.inputs.readme }}", "run-name":"build ${{ github.event.inputs.ref }}", "etc":"${{ env.WORKFLOW_BUILD_BASE64JSON }}" }'
@@ -69,7 +69,7 @@ jobs:
         if: env.WORKFLOW_BUILD_UNRAID == 'true' && steps.build.outputs.workflow-conclusion == 'success'
         uses: the-actions-org/workflow-dispatch@3133c5d135c7dbe4be4f9793872b6ef331b53bc7 # v4.0.0
         with:
-          workflow: docker.yml
+          workflow: org.container.yml
           wait-for-completion: false
           token: "${{ secrets.REPOSITORY_TOKEN }}"
           inputs: '{ "release":"false", "readme":"false", "run-name":"build unraid ${{ github.event.inputs.ref }}", "etc":"${{ env.WORKFLOW_BUILD_UNRAID_BASE64JSON }}" }'
@@ -79,7 +79,7 @@ jobs:
         if: env.WORKFLOW_BUILD_NOBODY == 'true' && steps.build.outputs.workflow-conclusion == 'success'
         uses: the-actions-org/workflow-dispatch@3133c5d135c7dbe4be4f9793872b6ef331b53bc7 # v4.0.0
         with:
-          workflow: docker.yml
+          workflow: org.container.yml
           wait-for-completion: false
           token: "${{ secrets.REPOSITORY_TOKEN }}"
           inputs: '{ "release":"false", "readme":"false", "run-name":"build nobody ${{ github.event.inputs.ref }}", "etc":"${{ env.WORKFLOW_BUILD_NOBODY_BASE64JSON }}" }'
