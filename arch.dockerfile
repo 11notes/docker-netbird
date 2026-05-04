@@ -35,7 +35,8 @@
 
   RUN set -ex; \
     cd /go/netbird; \
-    go mod edit -replace github.com/dexidp/dex=/go/dex;
+    go mod edit -replace github.com/dexidp/dex=/go/dex; \
+    eleven go patch github.com/jackc/pgx/v5 v5.9.0 CVE-2026-33816;
 
   RUN set -ex; \
     for BUILD in ${BUILD_ROOT}; do \
