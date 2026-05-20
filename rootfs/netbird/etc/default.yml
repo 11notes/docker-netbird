@@ -1,0 +1,39 @@
+server:
+  listenAddress: ":8080"
+  metricsPort: 9090
+  healthcheckAddress: ":9000"
+
+  logLevel: "info"
+  logFile: "console"
+
+  exposedAddress: "https://${NETBIRD_FQDN}:443"
+  authSecret: "APP_SERVER_DEFAULT_AUTH_SECRET"
+  dataDir: "/netbird/var/"
+  disableAnonymousMetrics: true
+  disableGeoliteUpdate: false
+
+  auth:
+    issuer: "https://${NETBIRD_FQDN}/oauth2"
+    localAuthDisabled: false
+    signKeyRefreshEnabled: true
+    sessionCookieEncryptionKey: "APP_SERVER_DEFAULT_SESSION_COOKIE_ENCRYPTION_KEY"
+    dashboardRedirectURIs:
+      - "https://${NETBIRD_FQDN}/#callback"
+      - "https://${NETBIRD_FQDN}/#silent-callback"
+    dashboardPostLogoutRedirectURIs:
+      - "https://${NETBIRD_FQDN}/"
+    cliRedirectURIs:
+      - "http://localhost:53000/"
+
+  store:
+    engine: "postgres"
+    dsn: "host=postgres user=postgres password=${POSTGRES_PASSWORD} dbname=postgres port=5432 sslmode=disable"
+    encryptionKey: "APP_SERVER_DEFAULT_ENCRYPTION_KEY"
+
+  activityStore:
+    engine: "postgres"
+    dsn: "host=postgres user=postgres password=${POSTGRES_PASSWORD} dbname=postgres port=5432 sslmode=disable"
+
+  authStore:
+    engine: "postgres"
+    dsn: "host=postgres user=postgres password=${POSTGRES_PASSWORD} dbname=postgres port=5432 sslmode=disable"

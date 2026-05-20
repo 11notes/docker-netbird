@@ -1,6 +1,9 @@
-${{ content_synopsis }} This image will run netbird from a single image (not multiple) [rootless](https://github.com/11notes/RTFM/blob/main/linux/container/image/rootless.md) and [distroless](https://github.com/11notes/RTFM/blob/main/linux/container/image/distroless.md) for more security. Due to the nature of a single image and not multiple, you see in the [compose.yml](https://github.com/11notes/docker-netbird/blob/master/compose.yml) example that an ```entrypoint:``` has been defined for each service. This image also needs some environment variables present in your **.env** file. This image's defaults (management.json) as well as the example **.env** are to be used with Keycloak as your IdP and Traefik as your reverse proxy. You can however provide your own **management.json** file and use any IdP you like and use a different reverse proxy.
+${{ title_caution }}
+${{ github:> [!CAUTION] }}
+${{ github:> }}Post tag 0.70.5 this image will now run the embedded IdP by default as well as using the unified management binary. If you were using an external IdP you can check the [guide](https://docs.netbird.io/selfhosted/migration/external-to-embedded-idp) from netbird what you can and need to do. This image is now also using the yml config and not the management.json anymore, please prepare your config accordingly!
 
-The init binary **management** will replace all variables in the format ```${VARIABLE}``` with all environment variables present in the service.
+${{ content_synopsis }} This image will run netbird from a single image (not multiple) [rootless](https://github.com/11notes/RTFM/blob/main/linux/container/image/rootless.md) and [distroless](https://github.com/11notes/RTFM/blob/main/linux/container/image/distroless.md) for more security and convenience. Since this image supports all netbird images as a single image, the dashboard image needs a custom command entry (see the compose example). The init binary will also replace all environment variables present in the default.yml config file, in either the format ${VAR} or $VAR. The default config can be customized with environment variables, your own file or an [inline config](https://github.com/11notes/RTFM/blob/master/linux/container/image/11notes/inline-config.md), whatever you prefer. The default config is using the embedded IdP, you can then add your Keycloak or any other external IdP as well.
+
 
 ${{ content_uvp }} Good question! Because ...
 
@@ -13,34 +16,20 @@ ${{ github:> }}* ... this image runs read-only
 ${{ github:> }}* ... this image is automatically scanned for CVEs before and after publishing
 ${{ github:> }}* ... this image is created via a secure and pinned CI/CD process
 ${{ github:> }}* ... this image is very small
+${{ github:> }}* ... this image creates random entries for unset keys and hashes from the default config
+${{ github:> }}* ... this image supports [inline configs](https://github.com/11notes/RTFM/blob/master/linux/container/image/11notes/inline-config.md)
 
 If you value security, simplicity and optimizations to the extreme, then this image might be for you.
 
 ${{ content_comparison }}
 
 ${{ title_volumes }}
-* **${{ json_root }}/etc** - Directory of your management.json config
-* **${{ json_root }}/var** - Directory of dynamic data from different init systems (relay, signal, management)
+* **${{ json_root }}/etc** - Directory of your config
+* **${{ json_root }}/var** - Directory of dynamic data created by netbird
 
-# EXAMPLE ENV FILE 📑
-```ini
-# postgres settings
-POSTGRES_PASSWORD=netbird
-
-# netbird settings
-NETBIRD_RELAY_SECRET=eHAzbWY5NHBRNmwzc1RTcQ==
-NETBIRD_DATASTORE_ENCRYPTION_KEY=eHAzbWY5NHBRNmwzc1RTcUNOMzRBcnhSajhsbUxsbWc=
-NETBIRD_FQDN=netbird.domain.com
-
-# Keycloak settings
-KEYCLOAK_FQDN=keycloak.domain.com
-KEYCLOAK_REALM=netbird
-KEYCLOAK_CLIENT_SECRET=wDMyEH0vIeUL0QGXtHyKIYw4D3gnJl7D
-
-# STUN/TURN configuration
-STUN_FQDN_AND_PORT=turn.domain.com:5349
-TURN_FQDN_AND_PORT=turn.domain.com:5349
-TURN_SECRET=Ywmpd2lvg9FYsbecfbgLI8uJaHO0DfX9
+${{ title_config }}
+```yaml
+${{ include: ./rootfs/netbird/etc/default.yml }}
 ```
 
 ${{ content_compose }}
@@ -59,4 +48,4 @@ ${{ content_tips }}
 
 ${{ title_caution }}
 ${{ github:> [!CAUTION] }}
-${{ github:> }}* Because this image is distroless, it only works with PostgreSQL, **not SQLite**!
+${{ github:> }}* Because this image is distroless, it only works with PostgreSQL/MySQL, **not SQLite**!

@@ -294,8 +294,8 @@ jobs:
                   if(semver.length >= 2) docker.image.tags.push(`${semver[0]}.${semver[1]}`);
                   if(semver.length >= 3) docker.image.tags.push(`${semver[0]}.${semver[1]}.${semver[2]}`);
                 }
-                if(opt.dot?.semver?.stable && new RegExp(opt.dot?.semver.stable, 'ig').test(docker.image.tags.join(','))) docker.image.tags.push('stable');
-                if(opt.dot?.semver?.latest && new RegExp(opt.dot?.semver.latest, 'ig').test(docker.image.tags.join(','))) docker.image.tags.push('latest');
+                if(opt.dot?.semver?.stable && new RegExp(opt.dot?.semver.stable, 'ig').test(docker.image.tags.join(',')) || docker.app.version === "stable") docker.image.tags.push('stable');
+                if(opt.dot?.semver?.latest && new RegExp(opt.dot?.semver.latest, 'ig').test(docker.image.tags.join(',')) || docker.app.version === "latest") docker.image.tags.push('latest');
               }else{
                 docker.image.tags.push('latest');
               }
@@ -375,6 +375,8 @@ jobs:
                       case /11notes\/dotnetsdk\:\$\{APP_DOTNET9_VERSION\}/ig.test(file): core.exportVariable('WORKFLOW_IMAGE_DEPENDENCY', 'dotnet9'); break;
                       case /11notes\/dotnetsdk\:\$\{APP_DOTNET10_VERSION\}/ig.test(file): core.exportVariable('WORKFLOW_IMAGE_DEPENDENCY', 'dotnet10'); break;
                       case /11notes\/dotnetsdk\:\$\{APP_DOTNET11_VERSION\}/ig.test(file): core.exportVariable('WORKFLOW_IMAGE_DEPENDENCY', 'dotnet11'); break;
+                      case /11notes\/node\:\$\{APP_NODE_VERSION\}/ig.test(file): core.exportVariable('WORKFLOW_IMAGE_DEPENDENCY', 'node'); break;
+                      case /11notes\/node\:stable/ig.test(file): core.exportVariable('WORKFLOW_IMAGE_DEPENDENCY', 'node_stable'); break;
                     }
                   }catch(e){
                     throw new Error(`could not open ./${dockerfile}: ${e}`);

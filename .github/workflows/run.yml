@@ -26,7 +26,7 @@ jobs:
 
     steps:
       - name: checkout all tags
-        uses: actions/checkout@85e6279cec87321a52edac9c87bce653a07cf6c2
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           ref: 'master'
           fetch-depth: 0
@@ -44,7 +44,7 @@ jobs:
 
       - name: call org.update
         if: env.WORKFLOW_UPDATE == 'true'
-        uses: the-actions-org/workflow-dispatch@3133c5d135c7dbe4be4f9793872b6ef331b53bc7
+        uses: benc-uk/workflow-dispatch@7a027648b88c2413826b6ddd6c76114894dc5ec4 #v1.3.1
         with:
           wait-for-completion: false
           workflow: org.update.yml
