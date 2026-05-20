@@ -1,18 +1,21 @@
 ![banner](https://raw.githubusercontent.com/11notes/static/refs/heads/master/img/banner/README.png)
 
 # NETBIRD
-![size](https://img.shields.io/badge/image_size-85MB-green?color=%2338ad2d)![5px](https://raw.githubusercontent.com/11notes/static/refs/heads/master/img/markdown/transparent5x2px.png)![pulls](https://img.shields.io/docker/pulls/11notes/netbird?color=2b75d6)![5px](https://raw.githubusercontent.com/11notes/static/refs/heads/master/img/markdown/transparent5x2px.png)[<img src="https://img.shields.io/github/issues/11notes/docker-netbird?color=7842f5">](https://github.com/11notes/docker-netbird/issues)![5px](https://raw.githubusercontent.com/11notes/static/refs/heads/master/img/markdown/transparent5x2px.png)![swiss_made](https://img.shields.io/badge/Swiss_Made-FFFFFF?labelColor=FF0000&logo=data:image/svg%2bxml;base64,PHN2ZyB2ZXJzaW9uPSIxIiB3aWR0aD0iNTEyIiBoZWlnaHQ9IjUxMiIgdmlld0JveD0iMCAwIDMyIDMyIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgogIDxyZWN0IHdpZHRoPSIzMiIgaGVpZ2h0PSIzMiIgZmlsbD0idHJhbnNwYXJlbnQiLz4KICA8cGF0aCBkPSJtMTMgNmg2djdoN3Y2aC03djdoLTZ2LTdoLTd2LTZoN3oiIGZpbGw9IiNmZmYiLz4KPC9zdmc+)
+![size](https://img.shields.io/badge/image_size-68MB-green?color=%2338ad2d)![5px](https://raw.githubusercontent.com/11notes/static/refs/heads/master/img/markdown/transparent5x2px.png)![pulls](https://img.shields.io/docker/pulls/11notes/netbird?color=2b75d6)![5px](https://raw.githubusercontent.com/11notes/static/refs/heads/master/img/markdown/transparent5x2px.png)[<img src="https://img.shields.io/github/issues/11notes/docker-netbird?color=7842f5">](https://github.com/11notes/docker-netbird/issues)![5px](https://raw.githubusercontent.com/11notes/static/refs/heads/master/img/markdown/transparent5x2px.png)![swiss_made](https://img.shields.io/badge/Swiss_Made-FFFFFF?labelColor=FF0000&logo=data:image/svg%2bxml;base64,PHN2ZyB2ZXJzaW9uPSIxIiB3aWR0aD0iNTEyIiBoZWlnaHQ9IjUxMiIgdmlld0JveD0iMCAwIDMyIDMyIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgogIDxyZWN0IHdpZHRoPSIzMiIgaGVpZ2h0PSIzMiIgZmlsbD0idHJhbnNwYXJlbnQiLz4KICA8cGF0aCBkPSJtMTMgNmg2djdoN3Y2aC03djdoLTZ2LTdoLTd2LTZoN3oiIGZpbGw9IiNmZmYiLz4KPC9zdmc+)
 
-Run netbird rootless and distroless from a single image.
+run netbird rootless and distroless.
 
 # INTRODUCTION 📢
 
 [NetBird](https://github.com/netbirdio/netbird) (created by [netbird](https://github.com/netbirdio)) combines a WireGuard-based overlay network with Zero Trust Network Access, providing a unified open source platform for reliable and secure connectivity. Create your own selfhosted ZTNA mesh network.
 
-# SYNOPSIS 📖
-**What can I do with this?** This image will run netbird from a single image (not multiple) [rootless](https://github.com/11notes/RTFM/blob/main/linux/container/image/rootless.md) and [distroless](https://github.com/11notes/RTFM/blob/main/linux/container/image/distroless.md) for more security. Due to the nature of a single image and not multiple, you see in the [compose.yml](https://github.com/11notes/docker-netbird/blob/master/compose.yml) example that an ```entrypoint:``` has been defined for each service. This image also needs some environment variables present in your **.env** file. This image's defaults (management.json) as well as the example **.env** are to be used with Keycloak as your IdP and Traefik as your reverse proxy. You can however provide your own **management.json** file and use any IdP you like and use a different reverse proxy.
+# CAUTION ⚠️
+> [!CAUTION]
+>Post tag 0.70.5 this image will now run the embedded IdP by default as well as using the unified management binary. If you were using an external IdP you can check the [guide](https://docs.netbird.io/selfhosted/migration/external-to-embedded-idp) from netbird what you can and need to do. This image is now also using the yml config and not the management.json anymore, please prepare your config accordingly!
 
-The init binary **management** will replace all variables in the format ```${VARIABLE}``` with all environment variables present in the service.
+# SYNOPSIS 📖
+**What can I do with this?** This image will run netbird from a single image (not multiple) [rootless](https://github.com/11notes/RTFM/blob/main/linux/container/image/rootless.md) and [distroless](https://github.com/11notes/RTFM/blob/main/linux/container/image/distroless.md) for more security and convenience. Since this image supports all netbird images as a single image, the dashboard image needs a custom command entry (see the compose [example](https://github.com/11notes/docker-netbird/blob/master/compose.yml#L41)). The init binary will also replace all environment variables present in the default.yml config file, in either the format ${VAR} or $VAR. The default config can be customized with environment variables, your own file or an [inline config](https://github.com/11notes/RTFM/blob/master/linux/container/image/11notes/inline-config.md), whatever you prefer. The default config is using the embedded IdP, you can then add your Keycloak or any other external IdP as well.
+
 
 # UNIQUE VALUE PROPOSITION 💶
 **Why should I run this image and not the other image(s) that already exist?** Good question! Because ...
@@ -26,6 +29,8 @@ The init binary **management** will replace all variables in the format ```${VAR
 >* ... this image is automatically scanned for CVEs before and after publishing
 >* ... this image is created via a secure and pinned CI/CD process
 >* ... this image is very small
+>* ... this image creates random entries for unset keys and hashes from the default config
+>* ... this image supports [inline configs](https://github.com/11notes/RTFM/blob/master/linux/container/image/11notes/inline-config.md)
 
 If you value security, simplicity and optimizations to the extreme, then this image might be for you.
 
@@ -34,32 +39,54 @@ Below you find a comparison between this image and the most used or original one
 
 | **image** | **size on disk** | **init default as** | **[distroless](https://github.com/11notes/RTFM/blob/main/linux/container/image/distroless.md)** | supported architectures
 | ---: | ---: | :---: | :---: | :---: |
-| 11notes/netbird | 85MB | 1000:1000 | ✅ | amd64, arm64 |
-| netbirdio/* | 416MB | 0:0 | ❌ | amd64, arm64, armv7 |
+| 11notes/netbird | 68MB | 1000:1000 | ✅ | amd64, arm64 |
+| netbirdio/* | 339MB | 0:0 | ❌ | amd64, arm64, armv7 |
 
 # VOLUMES 📁
-* **/netbird/etc** - Directory of your management.json config
-* **/netbird/var** - Directory of dynamic data from different init systems (relay, signal, management)
+* **/netbird/etc** - Directory of your config
+* **/netbird/var** - Directory of dynamic data created by netbird
 
-# EXAMPLE ENV FILE 📑
-```ini
-# postgres settings
-POSTGRES_PASSWORD=netbird
+# DEFAULT CONFIG 📑
+```yaml
+server:
+  listenAddress: ":8080"
+  metricsPort: 9090
+  healthcheckAddress: ":9000"
 
-# netbird settings
-NETBIRD_RELAY_SECRET=eHAzbWY5NHBRNmwzc1RTcQ==
-NETBIRD_DATASTORE_ENCRYPTION_KEY=eHAzbWY5NHBRNmwzc1RTcUNOMzRBcnhSajhsbUxsbWc=
-NETBIRD_FQDN=netbird.domain.com
+  logLevel: "info"
+  logFile: "console"
 
-# Keycloak settings
-KEYCLOAK_FQDN=keycloak.domain.com
-KEYCLOAK_REALM=netbird
-KEYCLOAK_CLIENT_SECRET=wDMyEH0vIeUL0QGXtHyKIYw4D3gnJl7D
+  exposedAddress: "https://${NETBIRD_FQDN}:443"
+  authSecret: "APP_SERVER_DEFAULT_AUTH_SECRET"
+  dataDir: "/netbird/var/"
+  disableAnonymousMetrics: true
+  disableGeoliteUpdate: false
 
-# STUN/TURN configuration
-STUN_FQDN_AND_PORT=turn.domain.com:5349
-TURN_FQDN_AND_PORT=turn.domain.com:5349
-TURN_SECRET=Ywmpd2lvg9FYsbecfbgLI8uJaHO0DfX9
+  auth:
+    issuer: "https://${NETBIRD_FQDN}/oauth2"
+    localAuthDisabled: false
+    signKeyRefreshEnabled: true
+    sessionCookieEncryptionKey: "APP_SERVER_DEFAULT_SESSION_COOKIE_ENCRYPTION_KEY"
+    dashboardRedirectURIs:
+      - "https://${NETBIRD_FQDN}/#callback"
+      - "https://${NETBIRD_FQDN}/#silent-callback"
+    dashboardPostLogoutRedirectURIs:
+      - "https://${NETBIRD_FQDN}/"
+    cliRedirectURIs:
+      - "http://localhost:53000/"
+
+  store:
+    engine: "postgres"
+    dsn: "host=postgres user=postgres password=${POSTGRES_PASSWORD} dbname=postgres port=5432 sslmode=disable"
+    encryptionKey: "APP_SERVER_DEFAULT_ENCRYPTION_KEY"
+
+  activityStore:
+    engine: "postgres"
+    dsn: "host=postgres user=postgres password=${POSTGRES_PASSWORD} dbname=postgres port=5432 sslmode=disable"
+
+  authStore:
+    engine: "postgres"
+    dsn: "host=postgres user=postgres password=${POSTGRES_PASSWORD} dbname=postgres port=5432 sslmode=disable"
 ```
 
 # COMPOSE ✂️
@@ -73,12 +100,55 @@ x-lockdown: &lockdown
   security_opt:
     - "no-new-privileges=true"
 
-
 x-image-netbird: &image
-  image: "11notes/netbird:0.68.3"
+  image: "11notes/netbird:0.71.2"
   <<: *lockdown
 
 services:
+  server:
+    depends_on:
+      postgres:
+        condition: "service_healthy"
+        restart: true
+    <<: *image
+    environment:
+      TZ: "Europe/Zurich"
+      NETBIRD_FQDN: "${NETBIRD_FQDN}"
+      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD}"
+    volumes:
+      - "server.etc:/netbird/etc"
+      - "server.var:/netbird/var"
+    tmpfs:
+      - "/tmp:uid=1000,gid=1000"
+    networks:
+      frontend:
+      backend:
+    ports:
+      - "3478:3478/udp"
+      - "8080:8080/tcp"
+    restart: "always"
+
+  dashboard:
+    <<: *image
+    # start dashboard instead of mangement server
+    command: "--dashboard"
+    environment:
+      TZ: "Europe/Zurich"
+      NETBIRD_MGMT_API_ENDPOINT: "https://${NETBIRD_FQDN}"
+      NETBIRD_MGMT_GRPC_API_ENDPOINT: "https://${NETBIRD_FQDN}"
+      AUTH_AUTHORITY: "https://${NETBIRD_FQDN}/oauth2"
+    volumes:
+      - "dashboard.var:/nginx/var"
+    tmpfs:
+      - "/nginx/cache:uid=1000,gid=1000"
+      - "/nginx/run:uid=1000,gid=1000"
+    networks:
+      frontend:
+      backend:
+    ports:
+      - "3000:3000/tcp"
+    restart: "always"
+
   postgres:
     # for more information about this image checkout:
     # https://github.com/11notes/docker-postgres
@@ -86,7 +156,7 @@ services:
     <<: *lockdown
     environment:
       TZ: "Europe/Zurich"
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD}"
       POSTGRES_BACKUP_SCHEDULE: "0 3 * * *"
     volumes:
       - "postgres.etc:/postgres/etc"
@@ -99,105 +169,10 @@ services:
       backend:
     restart: "always"
 
-  dashboard:
-    <<: *image
-    environment:
-      NETBIRD_MGMT_API_ENDPOINT: "https://${NETBIRD_FQDN}"
-      NETBIRD_MGMT_GRPC_API_ENDPOINT: "https://${NETBIRD_FQDN}"
-      AUTH_AUDIENCE: "netbird-client"
-      AUTH_CLIENT_ID: "netbird-client"
-      AUTH_CLIENT_SECRET: 
-      AUTH_AUTHORITY: "https://${KEYCLOAK_FQDN}/realms/${KEYCLOAK_REALM}"
-      USE_AUTH0: false
-      AUTH_SUPPORTED_SCOPES: "openid"
-      NETBIRD_TOKEN_SOURCE: "accessToken"
-    entrypoint: ["/usr/local/bin/dashboard"]
-    volumes:
-      - "dashboard.var:/nginx/var"
-    tmpfs:
-      - "/nginx/cache:uid=1000,gid=1000"
-      - "/nginx/run:uid=1000,gid=1000"
-    networks:
-      frontend:
-    ports:
-      - "3000:3000/tcp"
-    healthcheck:
-      test: ["CMD", "/usr/local/bin/localhealth", "http://127.0.0.1:3000/ping", "-I"]
-      interval: 5s
-      timeout: 2s
-      start_period: 5s
-    restart: "always"
-
-  management:
-    depends_on:
-      postgres:
-        condition: "service_healthy"
-        restart: true
-    <<: *image
-    env_file: '.env'
-    environment:
-      TZ: "Europe/Zurich"
-      NETBIRD_STORE_ENGINE_POSTGRES_DSN: "host=postgres user=postgres password=${POSTGRES_PASSWORD} dbname=postgres port=5432"
-      NB_ACTIVITY_EVENT_STORE_ENGINE: "postgres"
-      NB_ACTIVITY_EVENT_POSTGRES_DSN: "host=postgres user=postgres password=${POSTGRES_PASSWORD} dbname=postgres port=5432"
-    entrypoint: ["/usr/local/bin/management"]
-    volumes:
-      - "management.etc:/netbird/etc"
-      - "management.var:/netbird/var"
-    tmpfs:
-      - "/tmp:uid=1000,gid=1000"
-    networks:
-      frontend:
-      backend:
-    ports:
-      - "3080:80/tcp"
-      - "33073:33073/tcp"
-    sysctls:
-      net.ipv4.ip_unprivileged_port_start: 80
-    healthcheck:
-      test: ["CMD", "/usr/local/bin/localhealth", "http://127.0.0.1:9090/metrics", "-I"]
-      interval: 5s
-      timeout: 2s
-      start_period: 5s
-    restart: "always"
-
-  signal:
-    <<: *image
-    environment:
-      TZ: "Europe/Zurich"
-    entrypoint: ["/usr/local/bin/signal"]
-    command: [
-        "run",
-        "--log-file", "console",
-        "--log-level", "info"
-      ]
-    volumes:
-      - "signal.var:/netbird/var"
-    networks:
-      frontend:
-    ports:
-      - "10000:10000/tcp"
-    restart: "always"
-
-  relay:
-    <<: *image
-    environment:
-      TZ: "Europe/Zurich"
-      NB_LISTEN_ADDRESS: ":33080"
-      NB_EXPOSED_ADDRESS: "rels://${NETBIRD_FQDN}:443"
-      NB_AUTH_SECRET: ${NETBIRD_RELAY_SECRET}
-    entrypoint: ["/usr/local/bin/relay"]
-    networks:
-      frontend:
-    ports:
-      - "33080:33080/tcp"
-    restart: "always"
-
 volumes:
-  management.etc:
-  management.var:
+  server.etc:
+  server.var:
   dashboard.var:
-  signal.var:
   postgres.etc:
   postgres.var:
   postgres.backup:
@@ -226,20 +201,20 @@ To find out how you can change the default UID/GID of this container image, cons
 # MAIN TAGS 🏷️
 These are the main tags for the image. There is also a tag for each commit and its shorthand sha256 value.
 
-* [0.68.3](https://hub.docker.com/r/11notes/netbird/tags?name=0.68.3)
-* [0.68.3-unraid](https://hub.docker.com/r/11notes/netbird/tags?name=0.68.3-unraid)
-* [0.68.3-nobody](https://hub.docker.com/r/11notes/netbird/tags?name=0.68.3-nobody)
+* [0.71.2](https://hub.docker.com/r/11notes/netbird/tags?name=0.71.2)
+* [0.71.2-unraid](https://hub.docker.com/r/11notes/netbird/tags?name=0.71.2-unraid)
+* [0.71.2-nobody](https://hub.docker.com/r/11notes/netbird/tags?name=0.71.2-nobody)
 
 ### There is no latest tag, what am I supposed to do about updates?
-It is my opinion that the ```:latest``` tag is a bad habbit and should not be used at all. Many developers introduce **breaking changes** in new releases. This would messed up everything for people who use ```:latest```. If you don’t want to change the tag to the latest [semver](https://semver.org/), simply use the short versions of [semver](https://semver.org/). Instead of using ```:0.68.3``` you can use ```:0``` or ```:0.68```. Since on each new version these tags are updated to the latest version of the software, using them is identical to using ```:latest``` but at least fixed to a major or minor version. Which in theory should not introduce breaking changes.
+It is my opinion that the ```:latest``` tag is a bad habbit and should not be used at all. Many developers introduce **breaking changes** in new releases. This would messed up everything for people who use ```:latest```. If you don’t want to change the tag to the latest [semver](https://semver.org/), simply use the short versions of [semver](https://semver.org/). Instead of using ```:0.71.2``` you can use ```:0``` or ```:0.71```. Since on each new version these tags are updated to the latest version of the software, using them is identical to using ```:latest``` but at least fixed to a major or minor version. Which in theory should not introduce breaking changes.
 
 If you still insist on having the bleeding edge release of this app, simply use the ```:rolling``` tag, but be warned! You will get the latest version of the app instantly, regardless of breaking changes or security issues or what so ever. You do this at your own risk!
 
 # REGISTRIES ☁️
 ```
-docker pull 11notes/netbird:0.68.3
-docker pull ghcr.io/11notes/netbird:0.68.3
-docker pull quay.io/11notes/netbird:0.68.3
+docker pull 11notes/netbird:0.71.2
+docker pull ghcr.io/11notes/netbird:0.71.2
+docker pull quay.io/11notes/netbird:0.71.2
 ```
 
 # UNRAID VERSION 🟠
@@ -268,9 +243,9 @@ This image supports nobody by default. Simply add **-nobody** to any tag and the
 
 # CAUTION ⚠️
 > [!CAUTION]
->* Because this image is distroless, it only works with PostgreSQL, **not SQLite**!
+>* Because this image is distroless, it only works with PostgreSQL/MySQL, **not SQLite**!
 
 # ElevenNotes™️
 This image is provided to you at your own risk. Always make backups before updating an image to a different version. Check the [releases](https://github.com/11notes/docker-netbird/releases) for breaking changes. If you have any problems with using this image simply raise an [issue](https://github.com/11notes/docker-netbird/issues), thanks. If you have a question or inputs please create a new [discussion](https://github.com/11notes/docker-netbird/discussions) instead of an issue. You can find all my other repositories on [github](https://github.com/11notes?tab=repositories).
 
-*created 05.05.2026, 00:03:59 (CET)*
+*created 20.05.2026, 08:49:47 (CET)*
