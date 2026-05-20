@@ -4,7 +4,7 @@
   "name": "netbird",
   "root": "/netbird",
   "semver": {
-    "version": "0.70.5"
+    "version": "0.71.2"
   },
   "readme": {
     "description": "run netbird rootless and distroless.",
