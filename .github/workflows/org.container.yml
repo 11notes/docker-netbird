@@ -135,6 +135,7 @@ jobs:
       DOCKER_IMAGE_ARGUMENTS: ${{ steps.setup-environment.outputs.DOCKER_IMAGE_ARGUMENTS }}
       DOCKER_CICD_LATEST: ${{ steps.setup-environment.outputs.DOCKER_CICD_LATEST }}
       WORKFLOW_BUILD: ${{ steps.setup-environment.outputs.WORKFLOW_BUILD }}
+      REGISTRY_QUAY: ${{ steps.setup-environment.outputs.REGISTRY_QUAY }}
 
     timeout-minutes: 1440
 
@@ -164,6 +165,11 @@ jobs:
         with:
           ref: ${{ github.ref_name }}
           fetch-depth: 0
+
+      # CHECK IF QUAY.IO IS DOWN AGAIN
+      - name: init / check quay.io
+        run: |
+          echo "QUAY_STATUS=$(curl -s https://status.redhat.com/api/v2/components.json | jq -r '.components[] | select(.name | contains("Quay") or contains("quay")) | .status')" >> $GITHUB_ENV
 
       # SETUP NODE JS
       - name: update / setup node
@@ -243,9 +249,21 @@ jobs:
                 registry:'localhost:5000/',
                 enable:(opt.input?.etc?.cache === undefined) ? true : opt.input.etc.cache,
               },
+              registry:{
+                docker:{enabled:true},
+                ghcr:{enabled:true},
+                quay:{enabled:true},
+              },
+              grype:{
+                fail:(opt.input?.etc?.grype?.fail || opt.dot?.grype?.fail)
+              },
               tags:[],
               merge_tags:[],
             };
+
+            if(docker.grype.fail === undefined){
+              docker.grype.fail = false;
+            }
 
             try{
               // wait 2.5s too not trigger 429 from github
@@ -259,7 +277,7 @@ jobs:
                 const depSemver = semverValid(semverCoerce(result[dep]));
                 docker.app[`${dep}_version`] = `${result[dep]}`;
                 docker.app[`${dep}_major_minor_version`] = `${semverMajor(depSemver)}.${semverMinor(depSemver)}`;
-                docker.app[`${dep}_major_version`] = semverMajor(depSemver);
+                //docker.app[`${dep}_major_version`] = semverMajor(depSemver);
                 core.info(`setting APP_${String(dep).toUpperCase()}_VERSION to ${result[dep]}`);
               }
             }catch(e){
@@ -274,6 +292,12 @@ jobs:
             const semver = (
               (/stable|latest/i.test(docker.app.version)) ? [] : docker.app.version.split('.')
             );
+
+            // setup additional version tags
+            if(semver.length >= 2){
+              docker.app.major_minor_version = `${semver[0]}.${semver[1]}`;
+            }
+
             // setup tags
               if(!opt.dot?.semver?.disable?.rolling && !opt.input.etc?.semver?.disable?.rolling){
                 docker.image.tags.push('rolling');
@@ -303,7 +327,12 @@ jobs:
               for(const tag of docker.image.tags){
                 docker.tags.push(`${docker.image.name}:${docker.image.prefix}${tag}${docker.image.suffix}-${docker.image.platform.sanitized}`);
                 docker.tags.push(`ghcr.io/${docker.image.name}:${docker.image.prefix}${tag}${docker.image.suffix}-${docker.image.platform.sanitized}`);
-                docker.tags.push(`quay.io/${docker.image.name}:${docker.image.prefix}${tag}${docker.image.suffix}-${docker.image.platform.sanitized}`);
+                if('${{ env.QUAY_STATUS }}' === 'operational'){
+                  core.setOutput('REGISTRY_QUAY', true);
+                  docker.tags.push(`quay.io/${docker.image.name}:${docker.image.prefix}${tag}${docker.image.suffix}-${docker.image.platform.sanitized}`);
+                }else{
+                  core.setOutput('REGISTRY_QUAY', false);
+                }
                 docker.merge_tags.push(`${docker.image.prefix}${tag}${docker.image.suffix}`);
               }
 
@@ -355,7 +384,7 @@ jobs:
 
               core.exportVariable('WORKFLOW_CREATE_RELEASE', (opt.input?.release === undefined) ? false : opt.input.release);
               core.exportVariable('WORKFLOW_CREATE_README', (opt.input?.readme === undefined) ? false : opt.input.readme);
-              core.exportVariable('WORKFLOW_GRYPE_FAIL_ON_SEVERITY', (opt.dot?.grype?.fail === undefined) ? true : opt.dot.grype.fail);
+              core.exportVariable('WORKFLOW_GRYPE_FAIL_ON_SEVERITY', docker.grype.fail);
               core.exportVariable('WORKFLOW_GRYPE_SEVERITY_CUTOFF', (opt.dot?.grype?.severity || 'critical'));
 
             // check if workflow needs to be registered
@@ -416,7 +445,7 @@ jobs:
       # ╚═════════════════════════════════════════════════════╝
       # REGISTER WORKFLOW DEPENDENCY ON BASE IMAGE
       - name: register image dependency
-        uses: benc-uk/workflow-dispatch@7a027648b88c2413826b6ddd6c76114894dc5ec4 #v1.3.1
+        uses: benc-uk/workflow-dispatch@31e2b3319479a63f0ab15bf800eff9e913504e26 #v1.3.2
         if: env.WORKFLOW_IMAGE_DEPENDENCY != '' && matrix.platform == 'amd64'
         with:
           wait-for-completion: false
@@ -506,6 +535,37 @@ jobs:
         if: env.WORKFLOW_BUILD == 'true' && (failure() || steps.grype.outcome == 'failure') && steps.image-build.outcome == 'success'
         run: |
           cat ${{ runner.temp }}/grype.json | jq -r '.runs[].tool.driver.rules[].help.markdown' >> $GITHUB_STEP_SUMMARY
+
+      # PERFORM INTEGRATION TEST
+      - name: container image / integration test
+        id: integration
+        if: hashFiles('./.github/tests/integration/compose.yml') != ''
+        run: |
+          cd ./.github/tests/integration
+          IMAGE="${{ env.DOCKER_CACHE_GRYPE }}" docker compose up -d
+          echo "waiting for container startup (max 60s) ..."
+          for TRY in $(seq 1 12); do
+            HEALTH=$(docker inspect --format='{{json .State.Health}}' integration-main-1 | jq -r '.Status')
+            echo "container health (#${TRY}): ${HEALTH}"
+            if [ ${HEALTH} == "healthy" ]; then
+              echo "integration test successfull!"
+              exit 0
+            else
+              if [ ${HEALTH} == "unhealthy" ]; then
+                break
+              else
+                sleep 5s
+              fi
+            fi
+          done
+          echo "container integration test failed!!!"
+          echo "container healthcheck logs:"
+          echo "-----------------------------------------------------------------"
+          docker inspect --format='{{json .State.Health}}' integration-main-1 | jq
+          echo "container logs:"
+          echo "-----------------------------------------------------------------"
+          docker logs integration-main-1
+          exit 1
 
       # PUSH IMAGE TO ALL REGISTRIES IF CLEAN
       - name: container image / push to registries
@@ -609,7 +669,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        registry: [docker.io, ghcr.io, quay.io]
+        registry: ${{ needs.docker.outputs.REGISTRY_QUAY == 'true' && fromJSON('["docker.io", "ghcr.io"]') || fromJSON('["docker.io", "ghcr.io", "quay.io"]') }}
 
     env:
       DOCKER_IMAGE_NAME: ${{ needs.docker.outputs.DOCKER_IMAGE_NAME }}
@@ -848,4 +908,4 @@ jobs:
               "secret":"${{ secrets.DOCKER_TOKEN }}"
             }' \
             --fail | jq -r ".access_token")
-          curl -s -H "Authorization: Bearer ${TOKEN}" -X DELETE https://hub.docker.com/v2/repositories/${{ env.DOCKER_IMAGE_NAME }}/tags/latest | echo ":latest tag not found"
+          curl -s -H "Authorization: Bearer ${TOKEN}" -X DELETE https://hub.docker.com/v2/repositories/${{ env.DOCKER_IMAGE_NAME }}/tags/latest || echo ":latest tag not found"

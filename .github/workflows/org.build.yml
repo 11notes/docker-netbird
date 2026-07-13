@@ -57,17 +57,19 @@ jobs:
       # DEFAULT
       - name: build container image
         id: build
-        uses: benc-uk/workflow-dispatch@7a027648b88c2413826b6ddd6c76114894dc5ec4 #v1.3.1
+        uses: benc-uk/workflow-dispatch@31e2b3319479a63f0ab15bf800eff9e913504e26 #v1.3.2
         with:
           workflow: org.container.yml
           wait-for-completion: true
           token: "${{ secrets.REPOSITORY_TOKEN }}"
           inputs: '{ "release":"${{ github.event.inputs.release }}", "readme":"${{ github.event.inputs.readme }}", "run-name":"build ${{ github.event.inputs.ref }}", "etc":"${{ env.WORKFLOW_BUILD_BASE64JSON }}" }'
+          sync-status: true
+          wait-interval-seconds: 30
 
       # UNRAID
       - name: build container image for unraid
-        if: env.WORKFLOW_BUILD_UNRAID == 'true' && steps.build.outputs.workflow-conclusion == 'success'
-        uses: benc-uk/workflow-dispatch@7a027648b88c2413826b6ddd6c76114894dc5ec4 #v1.3.1
+        if: env.WORKFLOW_BUILD_UNRAID == 'true' && steps.build.conclusion == 'success'
+        uses: benc-uk/workflow-dispatch@31e2b3319479a63f0ab15bf800eff9e913504e26 #v1.3.2
         with:
           workflow: org.container.yml
           wait-for-completion: false
@@ -76,8 +78,8 @@ jobs:
 
       # NOBODY
       - name: build container image for nobody
-        if: env.WORKFLOW_BUILD_NOBODY == 'true' && steps.build.outputs.workflow-conclusion == 'success'
-        uses: benc-uk/workflow-dispatch@7a027648b88c2413826b6ddd6c76114894dc5ec4 #v1.3.1
+        if: env.WORKFLOW_BUILD_NOBODY == 'true' && steps.build.conclusion == 'success'
+        uses: benc-uk/workflow-dispatch@31e2b3319479a63f0ab15bf800eff9e913504e26 #v1.3.2
         with:
           workflow: org.container.yml
           wait-for-completion: false
