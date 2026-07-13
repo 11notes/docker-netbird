@@ -9,7 +9,7 @@ import (
 
 	// import third party drivers
 	_ "github.com/lib/pq"
-	_ "github.com/glebarez/go-sqlite"
+	_ "github.com/glebarez/sqlite"
 )
 
 // flavor represents a specific SQL implementation, and is used to translate query strings

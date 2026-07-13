@@ -34,20 +34,17 @@
   RUN set -eux; \
     eleven git clone ${BUILD_SRC} v${APP_VERSION};
 
+  # :: patch Netbird to not require cgo and produce a static binary
   RUN set -eux; \
     cd ${BUILD_ROOT}; \
-    sed -i 's/"development"/"v'${APP_VERSION}'"/' ${BUILD_ROOT}/version/version.go; \
     sed -i 's|"gorm.io/driver/sqlite"|"github.com/glebarez/sqlite"|' ${BUILD_ROOT}/management/server/geolocation/database.go; \
-    sed -i 's|"gorm.io/driver/sqlite"|"github.com/glebarez/sqlite"|' ${BUILD_ROOT}/management/server/geolocation/store.go;
-
-  RUN set -eux; \
-    eleven git clone dexidp/dex.git;
+    sed -i 's|"gorm.io/driver/sqlite"|"github.com/glebarez/sqlite"|' ${BUILD_ROOT}/management/server/geolocation/store.go; \
+    go mod tidy; \
+    DEX_PATH=$(go list -m -f '{{.Dir}}' github.com/dexidp/dex); \
+    cp -af ${DEX_PATH}/. /go/dex; \
+    go mod edit -replace github.com/dexidp/dex=/go/dex;
 
   COPY ./build/go/dex /go/dex
-
-  RUN set -eux; \
-    cd ${BUILD_ROOT}; \
-    go mod edit -replace github.com/dexidp/dex=/go/dex;
 
   RUN set -eux; \
     cd ${BUILD_ROOT}; \
@@ -55,6 +52,7 @@
 
   RUN set -eux; \
     cd ${BUILD_ROOT}; \
+    sed -i 's/"development"/"v'${APP_VERSION}'"/' ${BUILD_ROOT}/version/version.go; \
     eleven go build ${BUILD_BIN} ./combined; \
     eleven distroless ${BUILD_BIN};
 
