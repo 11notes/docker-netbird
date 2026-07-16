@@ -8,7 +8,7 @@ x-lockdown: &lockdown
     - "no-new-privileges=true"
 
 x-image-netbird: &image
-  image: "11notes/netbird:0.74.5"
+  image: "11notes/netbird:0.74.6"
   <<: *lockdown
 
 services:
