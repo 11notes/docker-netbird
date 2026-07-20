@@ -71,21 +71,21 @@ func dashboard(){
 		return nil
 	})
 	if err != nil {
-		eleven.LogFatal("could not start dasshboard!", err)
+		eleven.LogFatal("could not start dashboard!", err)
 	}
 
-	// replace all environment variables in a list of custom files
-	custom := []string{APP_DASHBOARD_TRUSTED_DOMAINS_TEMPLATE}
-	for _, path := range custom {
-		err := eleven.Container.FileContentReplaceEnv(path)
+	// create OidcTrustedDomains.js from tmpl, keep the tmpl so restarts and env changes keep working
+	if info, err := os.Stat(APP_DASHBOARD_TRUSTED_DOMAINS_TEMPLATE); err == nil {
+		text, err := ioutil.ReadFile(APP_DASHBOARD_TRUSTED_DOMAINS_TEMPLATE)
 		if err != nil {
-			eleven.LogFatal("could not setup file %s", path, err)
+			eleven.LogFatal("could not read file %s", APP_DASHBOARD_TRUSTED_DOMAINS_TEMPLATE, err)
 		}
-	}
-
-	// rename tmpl if not already done
-	if _, err := os.Stat(APP_DASHBOARD_TRUSTED_DOMAINS_TEMPLATE); !os.IsNotExist(err) {
-		os.Rename(APP_DASHBOARD_TRUSTED_DOMAINS_TEMPLATE, APP_DASHBOARD_TRUSTED_DOMAINS)
+		if err := ioutil.WriteFile(APP_DASHBOARD_TRUSTED_DOMAINS, text, info.Mode().Perm()); err != nil {
+			eleven.LogFatal("could not setup file %s", APP_DASHBOARD_TRUSTED_DOMAINS, err)
+		}
+		if err := eleven.Container.FileContentReplaceEnv(APP_DASHBOARD_TRUSTED_DOMAINS); err != nil {
+			eleven.LogFatal("could not setup file %s", APP_DASHBOARD_TRUSTED_DOMAINS, err)
+		}
 	}
 
 	// start nginx
