@@ -760,6 +760,18 @@ jobs:
         run: |
           docker buildx imagetools inspect ${{ matrix.registry }}/${{ env.DOCKER_IMAGE_NAME }}:${{ steps.meta.outputs.version }}
 
+      # ╔═════════════════════════════════════════════════════╗
+      # ║                  UPDATE HELM CHART                  ║
+      # ╚═════════════════════════════════════════════════════╝
+      # UPDATE HELM CHART
+      - name: helm / update
+        if: env.GLOBAL_WORKFLOW_BUILD_SUCCESS == 'true' && hashFiles('./chart/Chart.yaml') != ''
+        uses: somaz94/helm-oci-push-action@v1
+        with:
+          charts_dir: chart
+          registry: oci://${{ matrix.registry }}
+          registry_login: false
+ 
 
   # ╔═════════════════════════════════════════════════════╗
   # ║                                                     ║
