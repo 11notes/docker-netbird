@@ -77,9 +77,11 @@ func dashboard(){
 	// replace all environment variables in a list of custom files
 	custom := []string{APP_DASHBOARD_TRUSTED_DOMAINS_TEMPLATE}
 	for _, path := range custom {
-		err := eleven.Container.FileContentReplaceEnv(path)
-		if err != nil {
-			eleven.LogFatal("could not setup file %s", path, err)
+		if _, err := os.Stat(path); !os.IsNotExist(err){
+			err := eleven.Container.FileContentReplaceEnv(path)
+			if err != nil {
+				eleven.Log("WARNING", "could not setup file %s", path, err)
+			}
 		}
 	}
 
