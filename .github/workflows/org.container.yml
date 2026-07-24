@@ -327,11 +327,11 @@ jobs:
               for(const tag of docker.image.tags){
                 docker.tags.push(`${docker.image.name}:${docker.image.prefix}${tag}${docker.image.suffix}-${docker.image.platform.sanitized}`);
                 docker.tags.push(`ghcr.io/${docker.image.name}:${docker.image.prefix}${tag}${docker.image.suffix}-${docker.image.platform.sanitized}`);
-                if('${{ env.QUAY_STATUS }}' === 'operational'){
-                  core.setOutput('REGISTRY_QUAY', true);
+                if(/operational/i.test(process.env?.QUAY_STATUS)){
+                  core.setOutput('REGISTRY_QUAY', 'true');
                   docker.tags.push(`quay.io/${docker.image.name}:${docker.image.prefix}${tag}${docker.image.suffix}-${docker.image.platform.sanitized}`);
                 }else{
-                  core.setOutput('REGISTRY_QUAY', false);
+                  core.setOutput('REGISTRY_QUAY', 'false');
                 }
                 docker.merge_tags.push(`${docker.image.prefix}${tag}${docker.image.suffix}`);
               }
@@ -347,6 +347,7 @@ jobs:
                   docker.app[arg] = opt.dot.build.args[arg];
                 }
               }
+
               const arguments = [];
               for(const argument in docker.app){
                 arguments.push(`APP_${argument.toUpperCase()}=${docker.app[argument]}`);
@@ -370,6 +371,7 @@ jobs:
               core.exportVariable('DOCKER_IMAGE_PLATFORM_SANITIZED', docker.image.platform.sanitized);
               core.exportVariable('DOCKER_IMAGE_NAME_AND_VERSION', `${docker.image.name}:${docker.app.version}`);
               core.setOutput('DOCKER_IMAGE_NAME_AND_VERSION', `${docker.image.name}:${docker.app.version}`);
+              core.exportVariable('DOCKER_APP_VERSION', `${docker.app.version}`);
 
               // CI/CD
               core.setOutput('DOCKER_CICD_LATEST', opt.dot?.CICD?.latest || false);
@@ -669,7 +671,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        registry: ${{ needs.docker.outputs.REGISTRY_QUAY == 'true' && fromJSON('["docker.io", "ghcr.io"]') || fromJSON('["docker.io", "ghcr.io", "quay.io"]') }}
+        registry: ${{ needs.docker.outputs.REGISTRY_QUAY == 'true' && fromJSON('["docker.io", "ghcr.io", "quay.io"]') || fromJSON('["docker.io", "ghcr.io"]') }}
 
     env:
       DOCKER_IMAGE_NAME: ${{ needs.docker.outputs.DOCKER_IMAGE_NAME }}
@@ -759,18 +761,6 @@ jobs:
       - name: platform merge / inspect
         run: |
           docker buildx imagetools inspect ${{ matrix.registry }}/${{ env.DOCKER_IMAGE_NAME }}:${{ steps.meta.outputs.version }}
-
-      # ╔═════════════════════════════════════════════════════╗
-      # ║                  UPDATE HELM CHART                  ║
-      # ╚═════════════════════════════════════════════════════╝
-      # UPDATE HELM CHART
-      - name: helm / update
-        if: env.GLOBAL_WORKFLOW_BUILD_SUCCESS == 'true' && hashFiles('./chart/Chart.yaml') != ''
-        uses: somaz94/helm-oci-push-action@v1
-        with:
-          charts_dir: chart
-          registry: oci://${{ matrix.registry }}
-          registry_login: false
  
 
   # ╔═════════════════════════════════════════════════════╗
