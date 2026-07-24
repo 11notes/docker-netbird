@@ -34,8 +34,8 @@
   RUN set -eux; \
     eleven git clone ${BUILD_SRC} v${APP_VERSION};
 
-  # :: patch Netbird to not require cgo and produce a static binary
   RUN set -eux; \
+    # :: patch Netbird to not require cgo and produce a static binary
     cd ${BUILD_ROOT}; \
     sed -i 's|"gorm.io/driver/sqlite"|"github.com/glebarez/sqlite"|' ${BUILD_ROOT}/management/server/geolocation/database.go; \
     sed -i 's|"gorm.io/driver/sqlite"|"github.com/glebarez/sqlite"|' ${BUILD_ROOT}/management/server/geolocation/store.go; \
@@ -58,6 +58,8 @@
 
 # :: DASHBOARD
   FROM alpine AS dashboard
+  ARG APP_DASHBOARD_VERSION
+  ENV NEXT_PUBLIC_DASHBOARD_VERSION="v${APP_DASHBOARD_VERSION}"
 
   RUN set -eux; \
     apk --update --no-cache add \
@@ -68,7 +70,7 @@
       npm;
 
   RUN set -ex; \
-    git clone https://github.com/netbirdio/dashboard;
+    eleven git clone https://github.com/netbirdio/dashboard v${APP_DASHBOARD_VERSION};
 
   RUN set -ex; \
     cd /dashboard; \

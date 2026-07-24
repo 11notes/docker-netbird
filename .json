@@ -6,6 +6,11 @@
   "semver": {
     "version": "0.75.0"
   },
+  "build":{
+    "args":{
+      "dashboard_version":"2.90.6"
+    }
+  },
   "readme": {
     "description": "run netbird rootless and distroless.",
     "introduction": "[NetBird](https://github.com/netbirdio/netbird) (created by [netbird](https://github.com/netbirdio)) combines a WireGuard-based overlay network with Zero Trust Network Access, providing a unified open source platform for reliable and secure connectivity. Create your own selfhosted ZTNA mesh network.",
