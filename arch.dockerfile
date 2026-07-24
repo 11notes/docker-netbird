@@ -60,7 +60,6 @@
   FROM alpine AS dashboard
   COPY --from=util / /
   ARG APP_DASHBOARD_VERSION
-  ENV NEXT_PUBLIC_DASHBOARD_VERSION="v${APP_DASHBOARD_VERSION}"
 
   RUN set -eux; \
     apk --update --no-cache add \
@@ -77,7 +76,7 @@
     cd /dashboard; \
     npm install; \
     echo '{}' > .local-config.json; \
-    npm run build; \
+    NEXT_PUBLIC_DASHBOARD_VERSION="v${APP_DASHBOARD_VERSION}" npm run build; \
     mkdir -p /distroless/nginx/var; \
     cp -R ./out/*  /distroless/nginx/var;
 
