@@ -8,10 +8,7 @@
   },
   "build": {
     "args": {
-      "dashboard_version": "2.90.6",
-      "version_build": {
-        "dashboard_version": "2.90.7"
-      }
+      "dashboard_version": "2.90.7"
     }
   },
   "readme": {
