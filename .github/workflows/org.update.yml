@@ -145,10 +145,9 @@ jobs:
                     build.args = {
                       version_build:job.inputs.build,
                     };
-                    job.json.build.args.version_build = job.inputs.build;
+                    job.json.build = job.inputs.build;
                   }else if(job.inputs?.build?.args){
-                    build.args = job.inputs.build.args;
-                    job.json.build.args.version_build = job.inputs.build.args;
+                    job.json.build.args = job.inputs.build.args;
                   }
 
                   // update .json
