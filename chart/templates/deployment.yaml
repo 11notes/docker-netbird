@@ -85,29 +85,24 @@ spec:
             {{- toYaml . | nindent 12 }}
           {{- end }}
           volumeMounts:
-            {{- if .Values.persistence.etc.enabled }}
             - name: netbird.etc
               mountPath: /netbird/etc
             - name: netbird.var
               mountPath: /netbird/var
-            {{- end }}
             - name: netbird.tmp
               mountPath: /tmp
 
         - name: dashboard
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command: "--dashboard"
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
           env:
             - name: TZ
               value: {{ .Values.timezone | quote }}
-            - name: NETBIRD_MGMT_API_ENDPOINT
-              value: "https://{{ .Values.netbird.fqdn }}"
-            - name: NETBIRD_MGMT_GRPC_API_ENDPOINT
-              value: "https://{{ .Values.netbird.fqdn }}"
-            - name: AUTH_AUTHORITY
-              value: "https://{{ .Values.netbird.fqdn }}/oauth2"
+            - name: NETBIRD_FQDN
+              value: {{ .Values.netbird.fqdn }}
             {{- with .Values.extraEnv }}
             {{- toYaml . | nindent 12 }}
             {{- end }}
@@ -128,10 +123,8 @@ spec:
             {{- toYaml . | nindent 12 }}
           {{- end }}
           volumeMounts:
-            {{- if .Values.persistence.etc.enabled }}
             - name: dashboard.var
               mountPath: /netbird/var
-            {{- end }}
             - name: dashboard.tmp
               mountPath: /tmp
             - name: dashboard.nginx.cache
@@ -140,21 +133,15 @@ spec:
               mountPath: /nginx/run
 
       volumes:
-        {{- if .Values.persistence.netbird-etc.enabled }}
         - name: netbird.etc
           persistentVolumeClaim:
             claimName: {{ include "netbird.claimName" (list . "netbird-etc") }}
-        {{- end }}
-        {{- if .Values.persistence.netbird-var.enabled }}
         - name: netbird.var
           persistentVolumeClaim:
             claimName: {{ include "netbird.claimName" (list . "netbird-var") }}
-        {{- end }}
-        {{- if .Values.persistence.dashboard-var.enabled }}
         - name: dashboard.var
           persistentVolumeClaim:
             claimName: {{ include "netbird.claimName" (list . "dashboard-var") }}
-        {{- end }}
         - name: netbird.tmp
           emptyDir:
             medium: Memory
