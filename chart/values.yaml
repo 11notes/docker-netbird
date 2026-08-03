@@ -1,6 +1,6 @@
 image:
   repository: 11notes/netbird
-  tag: "0.76.0"
+  tag: "0.76.1"
   pullPolicy: IfNotPresent
 
 replicaCount: 1
@@ -50,7 +50,6 @@ tmpfs:
 
 persistence:
   netbird-etc:
-    enabled: true
     existingClaim: ""
     storageClass: ""
     accessModes:
@@ -58,7 +57,6 @@ persistence:
     size: 16Mi
 
   netbird-var:
-    enabled: true
     existingClaim: ""
     storageClass: ""
     accessModes:
@@ -66,7 +64,6 @@ persistence:
     size: 2Gi
 
   dashboard-var:
-    enabled: true
     existingClaim: ""
     storageClass: ""
     accessModes:

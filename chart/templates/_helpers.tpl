@@ -71,7 +71,7 @@ Key within the Secret holding POSTGRES_PASSWORD.
 {{- end }}
 
 {{/*
-Claim name for a given persistence volume (etc).
+Claim name for a given persistence volume.
 */}}
 {{- define "netbird.claimName" -}}
 {{- $root := index . 0 }}
@@ -80,6 +80,6 @@ Claim name for a given persistence volume (etc).
 {{- if $cfg.existingClaim }}
 {{- $cfg.existingClaim }}
 {{- else }}
-{{- printf "%s-%s" (include "netbird.fullname" $root) $vol }}
+{{- $vol }}
 {{- end }}
 {{- end }}

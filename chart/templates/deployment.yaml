@@ -33,7 +33,7 @@ spec:
             - -c
             - |
               eleven k8s chown /netbird {{ .Values.containerSecurityContext.runAsUser | default 1000 }} {{ .Values.containerSecurityContext.runAsGroup | default 1000 }}
-              eleven k8s chown /dashboard {{ .Values.containerSecurityContext.runAsUser | default 1000 }} {{ .Values.containerSecurityContext.runAsGroup | default 1000 }}
+              eleven k8s chown /nginx {{ .Values.containerSecurityContext.runAsUser | default 1000 }} {{ .Values.containerSecurityContext.runAsGroup | default 1000 }}
               eleven k8s wait postgres {{ .Values.postgres.serviceName }}
           volumeMounts:
             - name: netbird-etc
@@ -41,7 +41,7 @@ spec:
             - name: netbird-var
               mountPath: /netbird/var
             - name: dashboard-var
-              mountPath: /dashboard/var
+              mountPath: /nginx/var
           securityContext:
             runAsUser: 0
       containers:
@@ -103,7 +103,7 @@ spec:
             - name: TZ
               value: {{ .Values.timezone | quote }}
             - name: NETBIRD_FQDN
-              value: {{ .Values.netbird.fqdn }}
+              value: {{ .Values.netbird.fqdn | quote }}
             {{- with .Values.extraEnv }}
             {{- toYaml . | nindent 12 }}
             {{- end }}
@@ -125,7 +125,7 @@ spec:
           {{- end }}
           volumeMounts:
             - name: dashboard-var
-              mountPath: /netbird/var
+              mountPath: /nginx/var
             - name: dashboard-tmp
               mountPath: /tmp
             - name: dashboard-nginx-cache

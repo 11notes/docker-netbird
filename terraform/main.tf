@@ -51,7 +51,7 @@ resource "kubernetes_secret_v1" "postgres_password" {
 }
 
 resource "helm_release" "netbird_db" {
-  name = "netbird-db"
+  name = "postgres"
   repository = "oci://ghcr.io/11notes/charts"
   chart = "postgres"
   namespace  = "netbird"
@@ -100,7 +100,7 @@ resource "helm_release" "netbird" {
       postgres = {
         existingSecret = "netbird-postgres-password"
         existingSecretKey = "POSTGRES_PASSWORD"
-        serviceName = "netbird-db-postgres"
+        serviceName = "postgres"
       }
       persistence = {
         netbird-etc = {
