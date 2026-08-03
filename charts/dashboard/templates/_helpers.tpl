@@ -58,6 +58,6 @@ Claim name for a given persistence volume (etc).
 {{- if $cfg.existingClaim }}
 {{- $cfg.existingClaim }}
 {{- else }}
-{{- printf "%s-%s" (include (printf "%s.fullname" .Chart.Name) $root) $vol }}
+{{- printf "%s-%s" (include "netbird-dashboard.fullname" $root) $vol }}
 {{- end }}
 {{- end }}

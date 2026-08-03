@@ -85,7 +85,7 @@ spec:
         - name: {{ $vol }}
           {{- if $cfg.enabled }}
           persistentVolumeClaim:
-            claimName: {{ include (printf "%s.claimName" .Chart.Name) (list . $vol) }}
+            claimName: {{ include "netbird-dashboard.claimName" (list $ $vol) }}
           {{- else }}
           emptyDir: {}
           {{- end }}
