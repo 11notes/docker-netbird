@@ -60,7 +60,7 @@ jobs:
             for CHART in ./charts/*; do
               NAME=$(echo "${CHART}" | awk -F '/' '{print $NF}')
               echo "publishing chart: ${CHART}"
-              helm package ./chart -d ${{ runner.temp }}/helm-${NAME}
+              helm package ${CHART} -d ${{ runner.temp }}/helm-${NAME}
               mv ${{ runner.temp }}/helm-${NAME}/*.tgz ${{ runner.temp }}/helm/chart.tgz
               echo "${{ secrets.GITHUB_TOKEN }}" | helm registry login ghcr.io -u "11notes" --password-stdin
               helm push "${{ runner.temp }}/helm/chart.tgz" "oci://ghcr.io/11notes/charts"
