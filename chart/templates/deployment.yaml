@@ -134,15 +134,15 @@ spec:
               mountPath: /nginx/run
 
       volumes:
-        - name: netbird-etc
+        {{- range $vol, $cfg := $.Values.persistence }}
+        - name: {{ $vol }}
+          {{- if $cfg.enabled }}
           persistentVolumeClaim:
-            claimName: {{ include "netbird.claimName" (list . "netbird-etc") }}
-        - name: netbird-var
-          persistentVolumeClaim:
-            claimName: {{ include "netbird.claimName" (list . "netbird-var") }}
-        - name: dashboard-var
-          persistentVolumeClaim:
-            claimName: {{ include "netbird.claimName" (list . "dashboard-var") }}
+            claimName: {{ include "netbird.claimName" (list $ $vol) }}
+          {{- else }}
+          emptyDir: {}
+          {{- end }}
+        {{- end }}
         - name: netbird-tmp
           emptyDir:
             medium: Memory
