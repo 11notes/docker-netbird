@@ -12,7 +12,7 @@ netbird:
   fqdn: "ztna.domain.com"
 
 postgres:
-  serviceName: "netbird-postgres"
+  serviceName: "postgres"
   existingSecret: ""
   existingSecretKey: "POSTGRES_PASSWORD"
 
@@ -50,6 +50,7 @@ tmpfs:
 
 persistence:
   netbird-etc:
+    enabled: true
     existingClaim: ""
     storageClass: ""
     accessModes:
@@ -57,6 +58,7 @@ persistence:
     size: 16Mi
 
   netbird-var:
+    enabled: true
     existingClaim: ""
     storageClass: ""
     accessModes:
@@ -64,6 +66,7 @@ persistence:
     size: 2Gi
 
   dashboard-var:
+    enabled: true
     existingClaim: ""
     storageClass: ""
     accessModes:
