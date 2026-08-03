@@ -3,9 +3,9 @@
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: {{ $vol }}
+  name: {{ include (printf "%s.fullname" .Chart.Name) $ }}-{{ $vol }}
   labels:
-    {{- include "netbird-dashboard.labels" $ | nindent 4 }}
+    {{- include (printf "%s.labels" .Chart.Name) $ | nindent 4 }}
 spec:
   accessModes:
     {{- range $cfg.accessModes }}

@@ -1,20 +1,20 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "netbird.fullname" . }}
+  name: {{ include (printf "%s.fullname" .Chart.Name) . }}
   labels:
-    {{- include "netbird.labels" . | nindent 4 }}
+    {{- include (printf "%s.labels" .Chart.Name) . | nindent 4 }}
 spec:
   replicas: {{ .Values.replicaCount }}
   strategy:
     type: Recreate
   selector:
     matchLabels:
-      {{- include "netbird.selectorLabels" . | nindent 6 }}
+      {{- include (printf "%s.selectorLabels" .Chart.Name) . | nindent 6 }}
   template:
     metadata:
       labels:
-        {{- include "netbird.selectorLabels" . | nindent 8 }}
+        {{- include (printf "%s.selectorLabels" .Chart.Name) . | nindent 8 }}
         {{- with .Values.podLabels }}
         {{- toYaml . | nindent 8 }}
         {{- end }}
@@ -93,7 +93,7 @@ spec:
         - name: {{ $vol }}
           {{- if $cfg.enabled }}
           persistentVolumeClaim:
-            claimName: {{ include "netbird.claimName" (list $ $vol) }}
+            claimName: {{ include (printf "%s.claimName" .Chart.Name) (list . $vol) }}
           {{- else }}
           emptyDir: {}
           {{- end }}

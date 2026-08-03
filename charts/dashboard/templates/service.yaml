@@ -1,9 +1,9 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "netbird-dashboard.fullname" . }}
+  name: {{ include (printf "%s.fullname" .Chart.Name) . }}
   labels:
-    {{- include "netbird-dashboard.labels" . | nindent 4 }}
+    {{- include (printf "%s.labels" .Chart.Name) . | nindent 4 }}
   {{- with .Values.service.annotations }}
   annotations:
     {{- toYaml . | nindent 4 }}
@@ -16,4 +16,4 @@ spec:
       protocol: TCP
       name: dashboard
   selector:
-    {{- include "netbird-dashboard.selectorLabels" . | nindent 4 }}
+    {{- include (printf "%s.selectorLabels" .Chart.Name) . | nindent 4 }}

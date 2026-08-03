@@ -49,15 +49,15 @@ app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
 
 {{/*
-Claim name for a given persistence volume.
+Claim name for a given persistence volume (etc).
 */}}
-{{- define "netbird-dashboard.claimName" -}}
+{{- define "sonarr.claimName" -}}
 {{- $root := index . 0 }}
 {{- $vol := index . 1 }}
 {{- $cfg := index $root.Values.persistence $vol }}
 {{- if $cfg.existingClaim }}
 {{- $cfg.existingClaim }}
 {{- else }}
-{{- $vol }}
+{{- printf "%s-%s" (include "sonarr.fullname" $root) $vol }}
 {{- end }}
 {{- end }}
