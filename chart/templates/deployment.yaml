@@ -95,7 +95,8 @@ spec:
         - name: dashboard
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
-          args: ["--dashboard"]
+          args: 
+            - "--dashboard"
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
           env:
