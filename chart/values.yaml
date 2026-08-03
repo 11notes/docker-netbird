@@ -1,0 +1,94 @@
+image:
+  repository: 11notes/netbird
+  tag: "0.76.0"
+  pullPolicy: IfNotPresent
+
+replicaCount: 1
+nameOverride: ""
+fullnameOverride: ""
+timezone: "Europe/Zurich"
+
+netbird:
+  fqdn: "ztna.domain.com"
+
+postgres:
+  serviceName: "netbird-postgres"
+  existingSecret: ""
+  existingSecretKey: "POSTGRES_PASSWORD"
+
+extraEnv: []
+
+service:
+  type: ClusterIP
+  grpcPort: 8080
+  stunPort: 3478
+  httpPort: 3000
+  annotations: {}
+
+podSecurityContext:
+  fsGroup: 1000
+  fsGroupChangePolicy: "OnRootMismatch"
+
+containerSecurityContext:
+  runAsUser: 1000
+  runAsGroup: 1000
+  allowPrivilegeEscalation: false
+  readOnlyRootFilesystem: true
+
+resources: {}
+
+nodeSelector: {}
+tolerations: []
+affinity: {}
+
+podAnnotations: {}
+podLabels: {}
+
+tmpfs:
+  tmp:
+    sizeLimit: ""
+
+persistence:
+  netbird-etc:
+    enabled: true
+    existingClaim: ""
+    storageClass: ""
+    accessModes:
+      - ReadWriteOnce
+    size: 16Mi
+
+  netbird-var:
+    enabled: true
+    existingClaim: ""
+    storageClass: ""
+    accessModes:
+      - ReadWriteOnce
+    size: 2Gi
+
+  dashboard-var:
+    enabled: true
+    existingClaim: ""
+    storageClass: ""
+    accessModes:
+      - ReadWriteOnce
+    size: 256Mi
+
+livenessProbe:
+  exec:
+    command:
+      - localhealth
+      - http://127.0.0.1:9000/health
+  initialDelaySeconds: 30
+  periodSeconds: 10
+  timeoutSeconds: 5
+  failureThreshold: 6
+
+readinessProbe:
+  exec:
+    command:
+      - localhealth
+      - http://127.0.0.1:9000/health
+  initialDelaySeconds: 5
+  periodSeconds: 10
+  timeoutSeconds: 5
+  failureThreshold: 6

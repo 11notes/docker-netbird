@@ -1,0 +1,170 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "netbird.fullname" . }}
+  labels:
+    {{- include "netbird.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      {{- include "netbird.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "netbird.selectorLabels" . | nindent 8 }}
+        {{- with .Values.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    spec:
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      initContainers:
+        - name: chown-db-wait
+          image: "11notes/k8s-init"
+          command:
+            - sh
+            - -c
+            - |
+              eleven k8s chown /netbird {{ .Values.containerSecurityContext.runAsUser | default 1000 }} {{ .Values.containerSecurityContext.runAsGroup | default 1000 }}
+              eleven k8s wait postgres {{ .Values.postgres.serviceName }}
+          volumeMounts:
+            - name: etc
+              mountPath: /netbird/etc
+          securityContext:
+            runAsUser: 0
+      containers:
+        - name: netbird
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          env:
+            - name: TZ
+              value: {{ .Values.timezone | quote }}
+            - name: NETBIRD_FQDN
+              value: {{ .Values.netbird.fqdn | quote }}
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "postgres.secretName" . }}
+                  key: {{ include "postgres.secretKey" . }}
+            {{- with .Values.extraEnv }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+          ports:
+            - name: netbird
+              containerPort: 8080
+              protocol: TCP
+            - name: netbird-stun
+              containerPort: 3478
+              protocol: UDP
+          {{- with .Values.livenessProbe }}
+          livenessProbe:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.readinessProbe }}
+          readinessProbe:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          volumeMounts:
+            {{- if .Values.persistence.etc.enabled }}
+            - name: netbird.etc
+              mountPath: /netbird/etc
+            - name: netbird.var
+              mountPath: /netbird/var
+            {{- end }}
+            - name: netbird.tmp
+              mountPath: /tmp
+
+        - name: dashboard
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          env:
+            - name: TZ
+              value: {{ .Values.timezone | quote }}
+            - name: NETBIRD_MGMT_API_ENDPOINT
+              value: "https://{{ .Values.netbird.fqdn }}"
+            - name: NETBIRD_MGMT_GRPC_API_ENDPOINT
+              value: "https://{{ .Values.netbird.fqdn }}"
+            - name: AUTH_AUTHORITY
+              value: "https://{{ .Values.netbird.fqdn }}/oauth2"
+            {{- with .Values.extraEnv }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+          ports:
+            - name: dashboard
+              containerPort: 3000
+              protocol: TCP
+          {{- with .Values.livenessProbe }}
+          livenessProbe:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.readinessProbe }}
+          readinessProbe:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          volumeMounts:
+            {{- if .Values.persistence.etc.enabled }}
+            - name: dashboard.var
+              mountPath: /netbird/var
+            {{- end }}
+            - name: dashboard.tmp
+              mountPath: /tmp
+
+      volumes:
+        {{- if .Values.persistence.netbird-etc.enabled }}
+        - name: netbird.etc
+          persistentVolumeClaim:
+            claimName: {{ include "netbird.claimName" (list . "netbird-etc") }}
+        {{- end }}
+        {{- if .Values.persistence.netbird-var.enabled }}
+        - name: netbird.var
+          persistentVolumeClaim:
+            claimName: {{ include "netbird.claimName" (list . "netbird-var") }}
+        {{- end }}
+        {{- if .Values.persistence.dashboard-var.enabled }}
+        - name: dashboard.var
+          persistentVolumeClaim:
+            claimName: {{ include "netbird.claimName" (list . "dashboard-var") }}
+        {{- end }}
+        - name: netbird.tmp
+          emptyDir:
+            medium: Memory
+            {{- with .Values.tmpfs.tmp.sizeLimit }}
+            sizeLimit: {{ . }}
+            {{- end }}
+        - name: dashboard.tmp
+          emptyDir:
+            medium: Memory
+            {{- with .Values.tmpfs.tmp.sizeLimit }}
+            sizeLimit: {{ . }}
+            {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

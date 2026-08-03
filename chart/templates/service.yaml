@@ -1,0 +1,27 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "netbird.fullname" . }}
+  labels:
+    {{- include "netbird.labels" . | nindent 4 }}
+  {{- with .Values.service.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - port: {{ .Values.service.grpcPort }}
+      targetPort: netbird
+      protocol: TCP
+      name: netbird
+    - port: {{ .Values.service.stunPort }}
+      targetPort: netbird-stun
+      protocol: UDP
+      name: netbird-stun
+    - port: {{ .Values.service.httpPort }}
+      targetPort: dashboard
+      protocol: TCP
+      name: dashboard
+  selector:
+    {{- include "netbird.selectorLabels" . | nindent 4 }}

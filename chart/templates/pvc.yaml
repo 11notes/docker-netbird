@@ -1,0 +1,23 @@
+{{- range $vol := list "etc" "var" "backup" }}
+{{- $cfg := index $.Values.persistence $vol }}
+{{- if and $cfg.enabled (not $cfg.existingClaim) }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "sonarr.fullname" $ }}-{{ $vol }}
+  labels:
+    {{- include "sonarr.labels" $ | nindent 4 }}
+spec:
+  accessModes:
+    {{- range $cfg.accessModes }}
+    - {{ . }}
+    {{- end }}
+  {{- if $cfg.storageClass }}
+  storageClassName: {{ $cfg.storageClass }}
+  {{- end }}
+  resources:
+    requests:
+      storage: {{ $cfg.size }}
+---
+{{- end }}
+{{- end }}
