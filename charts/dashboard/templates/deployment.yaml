@@ -33,6 +33,7 @@ spec:
             - -c
             - |
               eleven k8s chown /nginx {{ .Values.containerSecurityContext.runAsUser | default 1000 }} {{ .Values.containerSecurityContext.runAsGroup | default 1000 }}
+              chmod 0755 -R /nginx
           volumeMounts:
             - name: var
               mountPath: /nginx/var
