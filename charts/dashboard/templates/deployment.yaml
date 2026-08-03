@@ -1,20 +1,20 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "dashboard.fullname" . }}
+  name: {{ include "netbird-dashboard.fullname" . }}
   labels:
-    {{- include "dashboard.labels" . | nindent 4 }}
+    {{- include "netbird-dashboard.labels" . | nindent 4 }}
 spec:
   replicas: {{ .Values.replicaCount }}
   strategy:
     type: Recreate
   selector:
     matchLabels:
-      {{- include "dashboard.selectorLabels" . | nindent 6 }}
+      {{- include "netbird-dashboard.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       labels:
-        {{- include "dashboard.selectorLabels" . | nindent 8 }}
+        {{- include "netbird-dashboard.selectorLabels" . | nindent 8 }}
         {{- with .Values.podLabels }}
         {{- toYaml . | nindent 8 }}
         {{- end }}
@@ -85,7 +85,7 @@ spec:
         - name: {{ $vol }}
           {{- if $cfg.enabled }}
           persistentVolumeClaim:
-            claimName: {{ include "dashboard.claimName" (list $ $vol) }}
+            claimName: {{ include "netbird-dashboard.claimName" (list $ $vol) }}
           {{- else }}
           emptyDir: {}
           {{- end }}

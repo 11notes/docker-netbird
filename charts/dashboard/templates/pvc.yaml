@@ -5,7 +5,7 @@ kind: PersistentVolumeClaim
 metadata:
   name: {{ $vol }}
   labels:
-    {{- include "dashboard.labels" $ | nindent 4 }}
+    {{- include "netbird-dashboard.labels" $ | nindent 4 }}
 spec:
   accessModes:
     {{- range $cfg.accessModes }}

@@ -1,14 +1,14 @@
 {{/*
 Expand the name of the chart.
 */}}
-{{- define "dashboard.name" -}}
+{{- define "netbird-dashboard.name" -}}
 {{- default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" }}
 {{- end }}
 
 {{/*
 Create a default fully qualified app name.
 */}}
-{{- define "dashboard.fullname" -}}
+{{- define "netbird-dashboard.fullname" -}}
 {{- if .Values.fullnameOverride }}
 {{- .Values.fullnameOverride | trunc 63 | trimSuffix "-" }}
 {{- else }}
@@ -24,16 +24,16 @@ Create a default fully qualified app name.
 {{/*
 Chart name and version label.
 */}}
-{{- define "dashboard.chart" -}}
+{{- define "netbird-dashboard.chart" -}}
 {{- printf "%s-%s" .Chart.Name .Chart.Version | replace "+" "_" | trunc 63 | trimSuffix "-" }}
 {{- end }}
 
 {{/*
 Common labels.
 */}}
-{{- define "dashboard.labels" -}}
-helm.sh/chart: {{ include "dashboard.chart" . }}
-{{ include "dashboard.selectorLabels" . }}
+{{- define "netbird-dashboard.labels" -}}
+helm.sh/chart: {{ include "netbird-dashboard.chart" . }}
+{{ include "netbird-dashboard.selectorLabels" . }}
 {{- if .Chart.AppVersion }}
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 {{- end }}
@@ -43,15 +43,15 @@ app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{/*
 Selector labels.
 */}}
-{{- define "dashboard.selectorLabels" -}}
-app.kubernetes.io/name: {{ include "dashboard.name" . }}
+{{- define "netbird-dashboard.selectorLabels" -}}
+app.kubernetes.io/name: {{ include "netbird-dashboard.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
 
 {{/*
 Claim name for a given persistence volume.
 */}}
-{{- define "dashboard.claimName" -}}
+{{- define "netbird-dashboard.claimName" -}}
 {{- $root := index . 0 }}
 {{- $vol := index . 1 }}
 {{- $cfg := index $root.Values.persistence $vol }}
