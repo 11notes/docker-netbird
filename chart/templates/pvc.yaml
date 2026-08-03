@@ -1,5 +1,4 @@
-{{- range $vol := list "netbird-etc" "netbird-var" "dashboard-var" }}
-{{- $cfg := index $.Values.persistence $vol }}
+{{- range $vol, $cfg := $.Values.persistence }}
 {{- if not $cfg.existingClaim }}
 apiVersion: v1
 kind: PersistentVolumeClaim
