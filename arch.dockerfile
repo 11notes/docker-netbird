@@ -78,7 +78,7 @@
     echo '{}' > .local-config.json; \
     NEXT_PUBLIC_DASHBOARD_VERSION="v${APP_DASHBOARD_VERSION}" npm run build; \
     mkdir -p /distroless/nginx/var; \
-    cp -R ./out/*  /distroless/nginx/var;
+    cp -R ./out/* /distroless/nginx/var;
 
 # :: FILE SYSTEM
   FROM alpine AS file-system
