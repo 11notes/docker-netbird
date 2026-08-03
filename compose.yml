@@ -41,9 +41,7 @@ services:
     command: "--dashboard"
     environment:
       TZ: "Europe/Zurich"
-      NETBIRD_MGMT_API_ENDPOINT: "https://${NETBIRD_FQDN}"
-      NETBIRD_MGMT_GRPC_API_ENDPOINT: "https://${NETBIRD_FQDN}"
-      AUTH_AUTHORITY: "https://${NETBIRD_FQDN}/oauth2"
+      NETBIRD_FQDN: "${NETBIRD_FQDN}"
     volumes:
       - "dashboard.var:/nginx/var"
     tmpfs:
