@@ -48,45 +48,7 @@ Below you find a comparison between this image and the most used or original one
 
 # DEFAULT CONFIG 📑
 ```yaml
-server:
-  listenAddress: ":8080"
-  metricsPort: 9090
-  healthcheckAddress: ":9000"
-
-  logLevel: "info"
-  logFile: "console"
-
-  exposedAddress: "https://${NETBIRD_FQDN}:443"
-  authSecret: "APP_SERVER_DEFAULT_AUTH_SECRET"
-  dataDir: "/netbird/var/"
-  disableAnonymousMetrics: true
-  disableGeoliteUpdate: false
-
-  auth:
-    issuer: "https://${NETBIRD_FQDN}/oauth2"
-    localAuthDisabled: false
-    signKeyRefreshEnabled: true
-    sessionCookieEncryptionKey: "APP_SERVER_DEFAULT_SESSION_COOKIE_ENCRYPTION_KEY"
-    dashboardRedirectURIs:
-      - "https://${NETBIRD_FQDN}/#callback"
-      - "https://${NETBIRD_FQDN}/#silent-callback"
-    dashboardPostLogoutRedirectURIs:
-      - "https://${NETBIRD_FQDN}/"
-    cliRedirectURIs:
-      - "http://localhost:53000/"
-
-  store:
-    engine: "postgres"
-    dsn: "host=postgres user=postgres password=${POSTGRES_PASSWORD} dbname=postgres port=5432 sslmode=disable"
-    encryptionKey: "APP_SERVER_DEFAULT_ENCRYPTION_KEY"
-
-  activityStore:
-    engine: "postgres"
-    dsn: "host=postgres user=postgres password=${POSTGRES_PASSWORD} dbname=postgres port=5432 sslmode=disable"
-
-  authStore:
-    engine: "postgres"
-    dsn: "host=postgres user=postgres password=${POSTGRES_PASSWORD} dbname=postgres port=5432 sslmode=disable"
+file ./rootfs/netbird/etc/default.yml not found!
 ```
 
 # COMPOSE ✂️
@@ -134,9 +96,7 @@ services:
     command: "--dashboard"
     environment:
       TZ: "Europe/Zurich"
-      NETBIRD_MGMT_API_ENDPOINT: "https://${NETBIRD_FQDN}"
-      NETBIRD_MGMT_GRPC_API_ENDPOINT: "https://${NETBIRD_FQDN}"
-      AUTH_AUTHORITY: "https://${NETBIRD_FQDN}/oauth2"
+      NETBIRD_FQDN: "${NETBIRD_FQDN}"
     volumes:
       - "dashboard.var:/nginx/var"
     tmpfs:
@@ -248,4 +208,4 @@ This image supports nobody by default. Simply add **-nobody** to any tag and the
 # ElevenNotes™️
 This image is provided to you at your own risk. Always make backups before updating an image to a different version. Check the [releases](https://github.com/11notes/docker-netbird/releases) for breaking changes. If you have any problems with using this image simply raise an [issue](https://github.com/11notes/docker-netbird/issues), thanks. If you have a question or inputs please create a new [discussion](https://github.com/11notes/docker-netbird/discussions) instead of an issue. You can find all my other repositories on [github](https://github.com/11notes?tab=repositories).
 
-*created 02.08.2026, 06:05:38 (CET)*
+*created 03.08.2026, 11:47:37 (CET)*
