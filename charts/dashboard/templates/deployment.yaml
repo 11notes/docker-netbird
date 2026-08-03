@@ -96,12 +96,6 @@ spec:
             {{- with .Values.tmpfs.tmp.sizeLimit }}
             sizeLimit: {{ . }}
             {{- end }}
-        - name: tmp
-          emptyDir:
-            medium: Memory
-            {{- with .Values.tmpfs.tmp.sizeLimit }}
-            sizeLimit: {{ . }}
-            {{- end }}
         - name: cache
           emptyDir:
             medium: Memory
