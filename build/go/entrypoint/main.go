@@ -38,6 +38,9 @@ func server(){
 	// write env to file if set
 	eleven.Container.EnvToFile(APP_SERVER_CONFIG_ENV, APP_SERVER_CONFIG)
 
+	// if not present, copy source files to destination
+	eleven.Container.CopyMissingSourceFiles("/netbird/.source/etc", "/netbird/etc")
+
 	// replace all environment variables present in the file ${VAR} or $VAR
 	eleven.Container.FileContentReplaceEnv(APP_SERVER_CONFIG)
 
@@ -51,10 +54,21 @@ func server(){
 	}
 
 	// start netbird
-	eleven.Container.Run("/usr/local/bin", "netbird", []string{"--config", "/netbird/etc/default.yml"})
+	eleven.Container.Run("/usr/local/bin", "netbird", []string{"--config", "/netbird/etc/default.yml"}, []string{})
 }
 
 func dashboard(){
+	// check for unset env variables
+	fqdn := eleven.Util.GetEnv("NETBIRD_FQDN", "localhost")
+	env := map[string]string{
+		"NETBIRD_MGMT_API_ENDPOINT": "https://" + fqdn,
+		"NETBIRD_MGMT_GRPC_API_ENDPOINT": "https://" + fqdn,
+		"AUTH_AUTHORITY": "https://" + fqdn + "/oauth2",
+	}
+	for key, value := range env{
+		eleven.Util.SetUnsetEnv(key, value)
+	}
+
 	// find all the files that contain AUTH_SUPPORTED_SCOPES and replace all environment variables in them
 	err := filepath.Walk("/nginx/var",
 		func(path string, info os.FileInfo, err error) error {
@@ -91,5 +105,5 @@ func dashboard(){
 	}
 
 	// start nginx
-	eleven.Container.Run("/usr/local/bin", "nginx", []string{})
+	eleven.Container.Run("/usr/local/bin", "nginx", []string{}, []string{})
 }
