@@ -64,10 +64,10 @@ resource "helm_release" "netbird_db" {
   values = [
     yamlencode({
       image = {
-        tag: "18"
+        tag = "18"
       }
       postgres = {
-        existingSecret    = "netbird-postgres-password"
+        existingSecret = "netbird-postgres-password"
         existingSecretKey = "POSTGRES_PASSWORD"
       }
       persistence = {
@@ -86,13 +86,13 @@ resource "helm_release" "netbird" {
   name = "netbird"
   repository = "oci://ghcr.io/11notes/charts"
   chart = "netbird"
-  namespace  = "netbird"
+  namespace = "netbird"
   version = "0.0.1"
 
   values = [
     yamlencode({
       image = {
-        tag: "0.76.1"
+        tag = "0.76.1"
       }
       netbird = {
         fqdn = trimspace(var.netbird_fqdn)
