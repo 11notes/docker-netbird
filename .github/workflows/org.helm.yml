@@ -44,19 +44,24 @@ jobs:
         with:
           version: 'latest'
 
-      # HELM UPDATE
-      - name: helm / update
+      # HELM SINGLE CHART
+      - name: helm / single chart
         if: hashFiles('./chart/Chart.yaml') != ''
         run: |
           helm package ./chart -d ${{ runner.temp }}/helm
           mv ${{ runner.temp }}/helm/*.tgz ${{ runner.temp }}/helm/chart.tgz
+          echo "${{ secrets.GITHUB_TOKEN }}" | helm registry login ghcr.io -u "11notes" --password-stdin
+          helm push "${{ runner.temp }}/helm/chart.tgz" "oci://ghcr.io/11notes/charts"
 
-      # HELM LOGIN OCI
+      # HELM MULTIPLE CHARTS
       - name: helm / login
         run: |
-          echo "${{ secrets.GITHUB_TOKEN }}" | helm registry login ghcr.io -u "11notes" --password-stdin
-
-      # HELM PUSH TO OCI
-      - name: helm / push
-        run: |
-          helm push "${{ runner.temp }}/helm/chart.tgz" "oci://ghcr.io/11notes/charts"
+          if [ -d "./charts" ]; then
+            for CHART in ./charts/*; do
+              NAME=$(echo "${CHART}" | awk -F '/' '{print $NF}')
+              helm package ./chart -d ${{ runner.temp }}/helm-${NAME}
+              mv ${{ runner.temp }}/helm-${NAME}/*.tgz ${{ runner.temp }}/helm/chart.tgz
+              echo "${{ secrets.GITHUB_TOKEN }}" | helm registry login ghcr.io -u "11notes" --password-stdin
+              helm push "${{ runner.temp }}/helm/chart.tgz" "oci://ghcr.io/11notes/charts"
+            done
+          fi

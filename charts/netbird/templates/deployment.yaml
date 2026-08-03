@@ -1,0 +1,118 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "netbird.fullname" . }}
+  labels:
+    {{- include "netbird.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      {{- include "netbird.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "netbird.selectorLabels" . | nindent 8 }}
+        {{- with .Values.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    spec:
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      initContainers:
+        - name: chown-db-wait
+          image: "11notes/k8s-init"
+          command:
+            - sh
+            - -c
+            - |
+              eleven k8s chown /netbird {{ .Values.containerSecurityContext.runAsUser | default 1000 }} {{ .Values.containerSecurityContext.runAsGroup | default 1000 }}
+              eleven k8s wait postgres {{ .Values.postgres.serviceName }}
+          volumeMounts:
+            - name: etc
+              mountPath: /netbird/etc
+            - name: var
+              mountPath: /netbird/var
+          securityContext:
+            runAsUser: 0
+      containers:
+        - name: netbird
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          env:
+            - name: TZ
+              value: {{ .Values.timezone | quote }}
+            - name: NETBIRD_FQDN
+              value: {{ .Values.netbird.fqdn | quote }}
+            - name: POSTGRES_HOST
+              value: {{ .Values.postgres.serviceName | quote }}
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "postgres.secretName" . }}
+                  key: {{ include "postgres.secretKey" . }}
+            {{- with .Values.extraEnv }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+          ports:
+            - name: netbird
+              containerPort: 8080
+              protocol: TCP
+            - name: netbird-stun
+              containerPort: 3478
+              protocol: UDP
+          {{- with .Values.livenessProbe }}
+          livenessProbe:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.readinessProbe }}
+          readinessProbe:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          volumeMounts:
+            - name: etc
+              mountPath: /netbird/etc
+            - name: var
+              mountPath: /netbird/var
+            - name: tmp
+              mountPath: /tmp
+      volumes:
+        {{- range $vol, $cfg := $.Values.persistence }}
+        - name: {{ $vol }}
+          {{- if $cfg.enabled }}
+          persistentVolumeClaim:
+            claimName: {{ include "netbird.claimName" (list $ $vol) }}
+          {{- else }}
+          emptyDir: {}
+          {{- end }}
+        {{- end }}
+        - name: tmp
+          emptyDir:
+            medium: Memory
+            {{- with .Values.tmpfs.tmp.sizeLimit }}
+            sizeLimit: {{ . }}
+            {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

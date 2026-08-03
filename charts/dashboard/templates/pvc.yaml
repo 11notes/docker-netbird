@@ -1,0 +1,22 @@
+{{- range $vol, $cfg := $.Values.persistence }}
+{{- if not $cfg.existingClaim }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ $vol }}
+  labels:
+    {{- include "dashboard.labels" $ | nindent 4 }}
+spec:
+  accessModes:
+    {{- range $cfg.accessModes }}
+    - {{ . }}
+    {{- end }}
+  {{- if $cfg.storageClass }}
+  storageClassName: {{ $cfg.storageClass }}
+  {{- end }}
+  resources:
+    requests:
+      storage: {{ $cfg.size }}
+---
+{{- end }}
+{{- end }}

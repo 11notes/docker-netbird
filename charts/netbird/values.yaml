@@ -22,7 +22,6 @@ service:
   type: ClusterIP
   grpcPort: 8080
   stunPort: 3478
-  httpPort: 3000
   annotations: {}
 
 podSecurityContext:
@@ -49,7 +48,7 @@ tmpfs:
     sizeLimit: ""
 
 persistence:
-  netbird-etc:
+  etc:
     enabled: true
     existingClaim: ""
     storageClass: ""
@@ -57,21 +56,13 @@ persistence:
       - ReadWriteOnce
     size: 16Mi
 
-  netbird-var:
+  var:
     enabled: true
     existingClaim: ""
     storageClass: ""
     accessModes:
       - ReadWriteOnce
     size: 2Gi
-
-  dashboard-var:
-    enabled: true
-    existingClaim: ""
-    storageClass: ""
-    accessModes:
-      - ReadWriteOnce
-    size: 256Mi
 
 livenessProbe:
   exec:
