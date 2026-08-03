@@ -26,6 +26,14 @@ func main(){
 			case "--dashboard":
 				dashboard()
 
+			case "--pvc-copy-dashboard":
+				eleven.Log("INF", "copy /nginx/var to PVC mounted at /pvc/var")
+				eleven.Container.CopyMissingSourceFiles("/nginx/var", "/pvc/var")
+
+			case "--pvc-copy-netbird":
+				eleven.Log("INF", "copy /netbird/etc to PVC mounted at /pvc/etc")
+				eleven.Container.CopyMissingSourceFiles("/netbird/etc", "/pvc/etc")
+
 			default:
 				server()
 		}
@@ -37,9 +45,6 @@ func main(){
 func server(){
 	// write env to file if set
 	eleven.Container.EnvToFile(APP_SERVER_CONFIG_ENV, APP_SERVER_CONFIG)
-
-	// if not present, copy source files to destination
-	eleven.Container.CopyMissingSourceFiles("/netbird/.source/etc", "/netbird/etc")
 
 	// replace all environment variables present in the file ${VAR} or $VAR
 	eleven.Container.FileContentReplaceEnv(APP_SERVER_CONFIG)
