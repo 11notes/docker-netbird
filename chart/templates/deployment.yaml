@@ -36,11 +36,11 @@ spec:
               eleven k8s chown /dashboard {{ .Values.containerSecurityContext.runAsUser | default 1000 }} {{ .Values.containerSecurityContext.runAsGroup | default 1000 }}
               eleven k8s wait postgres {{ .Values.postgres.serviceName }}
           volumeMounts:
-            - name: netbird.etc
+            - name: netbird-etc
               mountPath: /netbird/etc
-            - name: netbird.var
+            - name: netbird-var
               mountPath: /netbird/var
-            - name: dashboard.var
+            - name: dashboard-var
               mountPath: /dashboard/var
           securityContext:
             runAsUser: 0
@@ -85,11 +85,11 @@ spec:
             {{- toYaml . | nindent 12 }}
           {{- end }}
           volumeMounts:
-            - name: netbird.etc
+            - name: netbird-etc
               mountPath: /netbird/etc
-            - name: netbird.var
+            - name: netbird-var
               mountPath: /netbird/var
-            - name: netbird.tmp
+            - name: netbird-tmp
               mountPath: /tmp
 
         - name: dashboard
@@ -124,44 +124,44 @@ spec:
             {{- toYaml . | nindent 12 }}
           {{- end }}
           volumeMounts:
-            - name: dashboard.var
+            - name: dashboard-var
               mountPath: /netbird/var
-            - name: dashboard.tmp
+            - name: dashboard-tmp
               mountPath: /tmp
-            - name: dashboard.nginx.cache
+            - name: dashboard-nginx-cache
               mountPath: /nginx/cache
-            - name: dashboard.nginx.run
+            - name: dashboard-nginx-run
               mountPath: /nginx/run
 
       volumes:
-        - name: netbird.etc
+        - name: netbird-etc
           persistentVolumeClaim:
             claimName: {{ include "netbird.claimName" (list . "netbird-etc") }}
-        - name: netbird.var
+        - name: netbird-var
           persistentVolumeClaim:
             claimName: {{ include "netbird.claimName" (list . "netbird-var") }}
-        - name: dashboard.var
+        - name: dashboard-var
           persistentVolumeClaim:
             claimName: {{ include "netbird.claimName" (list . "dashboard-var") }}
-        - name: netbird.tmp
+        - name: netbird-tmp
           emptyDir:
             medium: Memory
             {{- with .Values.tmpfs.tmp.sizeLimit }}
             sizeLimit: {{ . }}
             {{- end }}
-        - name: dashboard.tmp
+        - name: dashboard-tmp
           emptyDir:
             medium: Memory
             {{- with .Values.tmpfs.tmp.sizeLimit }}
             sizeLimit: {{ . }}
             {{- end }}
-        - name: dashboard.nginx.cache
+        - name: dashboard-nginx-cache
           emptyDir:
             medium: Memory
             {{- with .Values.tmpfs.tmp.sizeLimit }}
             sizeLimit: {{ . }}
             {{- end }}
-        - name: dashboard.nginx.run
+        - name: dashboard-nginx-run
           emptyDir:
             medium: Memory
             {{- with .Values.tmpfs.tmp.sizeLimit }}
