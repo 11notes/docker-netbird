@@ -27,6 +27,10 @@ variable "postgres_password" {
   sensitive = true
 }
 
+variable "netbird_fqdn" {
+  type = string
+}
+
 resource "kubernetes_namespace_v1" "netbird" {
   metadata {
     name = "netbird"
@@ -88,7 +92,10 @@ resource "helm_release" "netbird" {
   values = [
     yamlencode({
       image = {
-        tag: "0.76.0"
+        tag: "0.76.1"
+      }
+      netbird = {
+        fqdn = trimspace(var.netbird_fqdn)
       }
       postgres = {
         existingSecret = "netbird-postgres-password"
