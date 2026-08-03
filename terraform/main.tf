@@ -39,7 +39,7 @@ resource "kubernetes_namespace_v1" "netbird" {
 
 resource "kubernetes_secret_v1" "postgres_password" {
   metadata {
-    name = "netbird-postgres-password"
+    name = "postgres-password"
     namespace = "netbird"
   }
 
@@ -67,7 +67,7 @@ resource "helm_release" "netbird_db" {
         tag = "18"
       }
       postgres = {
-        existingSecret = "netbird-postgres-password"
+        existingSecret = "postgres-password"
         existingSecretKey = "POSTGRES_PASSWORD"
       }
       persistence = {
@@ -98,7 +98,7 @@ resource "helm_release" "netbird" {
         fqdn = trimspace(var.netbird_fqdn)
       }
       postgres = {
-        existingSecret = "netbird-postgres-password"
+        existingSecret = "postgres-password"
         existingSecretKey = "POSTGRES_PASSWORD"
         serviceName = "postgres"
       }
