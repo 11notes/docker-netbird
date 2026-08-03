@@ -27,13 +27,13 @@ server:
 
   store:
     engine: "postgres"
-    dsn: "host=postgres user=postgres password=${POSTGRES_PASSWORD} dbname=postgres port=5432 sslmode=disable"
+    dsn: "host=${POSTGRES_HOST} user=postgres password=${POSTGRES_PASSWORD} dbname=postgres port=5432 sslmode=disable"
     encryptionKey: "APP_SERVER_DEFAULT_ENCRYPTION_KEY"
 
   activityStore:
     engine: "postgres"
-    dsn: "host=postgres user=postgres password=${POSTGRES_PASSWORD} dbname=postgres port=5432 sslmode=disable"
+    dsn: "host=${POSTGRES_HOST} user=postgres password=${POSTGRES_PASSWORD} dbname=postgres port=5432 sslmode=disable"
 
   authStore:
     engine: "postgres"
-    dsn: "host=postgres user=postgres password=${POSTGRES_PASSWORD} dbname=postgres port=5432 sslmode=disable"
+    dsn: "host=${POSTGRES_HOST} user=postgres password=${POSTGRES_PASSWORD} dbname=postgres port=5432 sslmode=disable"
