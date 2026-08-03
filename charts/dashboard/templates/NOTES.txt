@@ -1,1 +1,1 @@
-11notes/netbird:({{ .Chart.AppVersion }}) has been deployed as {{ include "netbird.fullname" . }} to your k8s cluster, enjoy!
+11notes/netbird:({{ .Chart.AppVersion }}) has been deployed as {{ include (printf "%s.fullname" .Chart.Name) . }} to your k8s cluster, enjoy!
