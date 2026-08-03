@@ -130,7 +130,8 @@
         NETBIRD_HOTJAR_TRACK_ID="" \
         NETBIRD_GOOGLE_ANALYTICS_ID="" \
         NETBIRD_GOOGLE_TAG_MANAGER_ID="" \
-        NETBIRD_WASM_PATH=""
+        NETBIRD_WASM_PATH="" \
+        POSTGRES_HOST="postgres"
 
   # :: multi-stage
     COPY --from=distroless / /
