@@ -28,6 +28,7 @@ spec:
       initContainers:
         - name: pvc-copy
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: Always
           args: 
             - "--pvc-copy-netbird"
           volumeMounts:
