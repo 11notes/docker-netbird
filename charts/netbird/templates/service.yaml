@@ -19,9 +19,5 @@ spec:
       targetPort: netbird-stun
       protocol: UDP
       name: netbird-stun
-    - port: {{ .Values.service.httpPort }}
-      targetPort: dashboard
-      protocol: TCP
-      name: dashboard
   selector:
     {{- include "netbird.selectorLabels" . | nindent 4 }}
