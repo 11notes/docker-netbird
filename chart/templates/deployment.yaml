@@ -33,10 +33,15 @@ spec:
             - -c
             - |
               eleven k8s chown /netbird {{ .Values.containerSecurityContext.runAsUser | default 1000 }} {{ .Values.containerSecurityContext.runAsGroup | default 1000 }}
+              eleven k8s chown /dashboard {{ .Values.containerSecurityContext.runAsUser | default 1000 }} {{ .Values.containerSecurityContext.runAsGroup | default 1000 }}
               eleven k8s wait postgres {{ .Values.postgres.serviceName }}
           volumeMounts:
-            - name: etc
+            - name: netbird.etc
               mountPath: /netbird/etc
+            - name: netbird.var
+              mountPath: /netbird/var
+            - name: dashboard.var
+              mountPath: /dashboard/var
           securityContext:
             runAsUser: 0
       containers:
@@ -50,6 +55,8 @@ spec:
               value: {{ .Values.timezone | quote }}
             - name: NETBIRD_FQDN
               value: {{ .Values.netbird.fqdn | quote }}
+            - name: POSTGRES_HOST
+              value: {{ .Values.postgres.serviceName | quote }}
             - name: POSTGRES_PASSWORD
               valueFrom:
                 secretKeyRef:
@@ -127,6 +134,10 @@ spec:
             {{- end }}
             - name: dashboard.tmp
               mountPath: /tmp
+            - name: dashboard.nginx.cache
+              mountPath: /nginx/cache
+            - name: dashboard.nginx.run
+              mountPath: /nginx/run
 
       volumes:
         {{- if .Values.persistence.netbird-etc.enabled }}
@@ -151,6 +162,18 @@ spec:
             sizeLimit: {{ . }}
             {{- end }}
         - name: dashboard.tmp
+          emptyDir:
+            medium: Memory
+            {{- with .Values.tmpfs.tmp.sizeLimit }}
+            sizeLimit: {{ . }}
+            {{- end }}
+        - name: dashboard.nginx.cache
+          emptyDir:
+            medium: Memory
+            {{- with .Values.tmpfs.tmp.sizeLimit }}
+            sizeLimit: {{ . }}
+            {{- end }}
+        - name: dashboard.nginx.run
           emptyDir:
             medium: Memory
             {{- with .Values.tmpfs.tmp.sizeLimit }}
