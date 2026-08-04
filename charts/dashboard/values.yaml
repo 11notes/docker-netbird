@@ -40,6 +40,10 @@ podLabels: {}
 tmpfs:
   tmp:
     sizeLimit: ""
+  cache:
+    sizeLimit: ""
+  run:
+    sizeLimit: ""
 
 persistence:
   var:
@@ -50,7 +54,7 @@ persistence:
       - ReadWriteOnce
     size: 256Mi
 
-livenessProbe:
+readinessProbe:
   exec:
     command:
       - localhealth
@@ -60,7 +64,7 @@ livenessProbe:
   timeoutSeconds: 5
   failureThreshold: 6
 
-readinessProbe:
+livenessProbe:
   exec:
     command:
       - localhealth
