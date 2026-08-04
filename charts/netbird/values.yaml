@@ -64,21 +64,29 @@ persistence:
       - ReadWriteOnce
     size: 2Gi
 
-livenessProbe:
+startupProbe:
   exec:
     command:
       - localhealth
       - http://127.0.0.1:9090/metrics
-  initialDelaySeconds: 120
   periodSeconds: 10
   timeoutSeconds: 5
-  failureThreshold: 6
+  failureThreshold: 12
 
 readinessProbe:
   exec:
     command:
       - localhealth
       - http://127.0.0.1:9090/metrics
+  periodSeconds: 10
+  timeoutSeconds: 5
+  failureThreshold: 6
+
+livenessProbe:
+  exec:
+    command:
+      - localhealth
+      - http://127.0.0.1:9000/health
   initialDelaySeconds: 120
   periodSeconds: 10
   timeoutSeconds: 5
