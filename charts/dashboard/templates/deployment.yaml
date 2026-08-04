@@ -110,13 +110,13 @@ spec:
         - name: cache
           emptyDir:
             medium: Memory
-            {{- with .Values.tmpfs.tmp.sizeLimit }}
+            {{- with .Values.tmpfs.cache.sizeLimit }}
             sizeLimit: {{ . }}
             {{- end }}
         - name: run
           emptyDir:
             medium: Memory
-            {{- with .Values.tmpfs.tmp.sizeLimit }}
+            {{- with .Values.tmpfs.run.sizeLimit }}
             sizeLimit: {{ . }}
             {{- end }}
       {{- with .Values.nodeSelector }}
