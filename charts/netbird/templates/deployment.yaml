@@ -79,6 +79,10 @@ spec:
             - name: netbird-stun
               containerPort: 3478
               protocol: UDP
+          {{- with .Values.startupProbe }}
+          startupProbe:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
           {{- with .Values.livenessProbe }}
           livenessProbe:
             {{- toYaml . | nindent 12 }}
