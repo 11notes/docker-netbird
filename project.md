@@ -18,6 +18,8 @@ ${{ github:> }}* ... this image is created via a secure and pinned CI/CD process
 ${{ github:> }}* ... this image is very small
 ${{ github:> }}* ... this image creates random entries for unset keys and hashes from the default config
 ${{ github:> }}* ... this image supports [inline configs](https://github.com/11notes/RTFM/blob/master/linux/container/image/11notes/inline-config.md)
+${{ github:> }}* ... this image has it's own helm [charts](https://github.com/11notes/docker-netbird/tree/master/charts)
+${{ github:> }}* ... this image has it's terraform deployment [script](https://github.com/11notes/docker-netbird/blob/master/terraform/main.tf)
 
 If you value security, simplicity and optimizations to the extreme, then this image might be for you.
 
