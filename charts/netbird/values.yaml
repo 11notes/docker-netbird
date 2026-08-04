@@ -68,7 +68,7 @@ livenessProbe:
   exec:
     command:
       - localhealth
-      - http://127.0.0.1:9000/health
+      - http://127.0.0.1:9090/metrics
   initialDelaySeconds: 120
   periodSeconds: 10
   timeoutSeconds: 5
@@ -78,7 +78,7 @@ readinessProbe:
   exec:
     command:
       - localhealth
-      - http://127.0.0.1:9000/health
+      - http://127.0.0.1:9090/metrics
   initialDelaySeconds: 120
   periodSeconds: 10
   timeoutSeconds: 5
