@@ -65,7 +65,7 @@ readinessProbe:
     command:
       - localhealth
       - http://127.0.0.1:9000/health
-  initialDelaySeconds: 5
+  initialDelaySeconds: 30
   periodSeconds: 10
   timeoutSeconds: 5
   failureThreshold: 6

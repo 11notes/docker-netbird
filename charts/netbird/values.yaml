@@ -69,7 +69,7 @@ livenessProbe:
     command:
       - localhealth
       - http://127.0.0.1:9000/health
-  initialDelaySeconds: 30
+  initialDelaySeconds: 120
   periodSeconds: 10
   timeoutSeconds: 5
   failureThreshold: 6
@@ -79,7 +79,7 @@ readinessProbe:
     command:
       - localhealth
       - http://127.0.0.1:9000/health
-  initialDelaySeconds: 5
+  initialDelaySeconds: 120
   periodSeconds: 10
   timeoutSeconds: 5
   failureThreshold: 6
