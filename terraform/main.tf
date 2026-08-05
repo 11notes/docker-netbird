@@ -2,11 +2,11 @@ terraform {
   required_version = ">= 1.15.0"
   required_providers {
     helm = {
-      source  = "hashicorp/helm"
+      source = "hashicorp/helm"
       version = "~> 3.2"
     }
     kubernetes = {
-      source  = "hashicorp/kubernetes"
+      source = "hashicorp/kubernetes"
       version = "~> 3.2"
     }
   }
@@ -27,6 +27,10 @@ variable "netbird_fqdn" {
 }
 
 variable "wildcard_fqdn" {
+  type = string
+}
+
+variable "stun_ingress_ip" {
   type = string
 }
 
@@ -56,7 +60,7 @@ resource "kubernetes_secret_v1" "postgres_password" {
 
 resource "kubernetes_ingress_v1" "netbird_ingress_grpc" {
   metadata {
-    name      = "netbird-ingress-grpc"
+    name = "netbird-ingress-grpc"
     namespace = "netbird"
     annotations = {
       "cert-manager.io/cluster-issuer" = "letsencrypt-prod"
@@ -118,7 +122,7 @@ resource "kubernetes_ingress_v1" "netbird_ingress_grpc" {
 
 resource "kubernetes_ingress_v1" "netbird_ingress_ws" {
   metadata {
-    name      = "netbird-ingress-ws"
+    name = "netbird-ingress-ws"
     namespace = "netbird"
     annotations = {
       "cert-manager.io/cluster-issuer" = "letsencrypt-prod"
@@ -137,7 +141,7 @@ resource "kubernetes_ingress_v1" "netbird_ingress_ws" {
       host = trimspace(var.netbird_fqdn)
       http {
         path {
-          path      = "/relay"
+          path = "/relay"
           path_type = "Prefix"
           backend {
             service {
@@ -149,7 +153,7 @@ resource "kubernetes_ingress_v1" "netbird_ingress_ws" {
           }
         }
         path {
-          path      = "/ws-proxy/"
+          path = "/ws-proxy"
           path_type = "Prefix"
           backend {
             service {
@@ -161,7 +165,7 @@ resource "kubernetes_ingress_v1" "netbird_ingress_ws" {
           }
         }
         path {
-          path      = "/api"
+          path = "/api"
           path_type = "Prefix"
           backend {
             service {
@@ -173,7 +177,7 @@ resource "kubernetes_ingress_v1" "netbird_ingress_ws" {
           }
         }
         path {
-          path      = "/oauth2"
+          path = "/oauth2"
           path_type = "Prefix"
           backend {
             service {
@@ -184,33 +188,8 @@ resource "kubernetes_ingress_v1" "netbird_ingress_ws" {
             }
           }
         }
-      }
-    }
-  }
-}
-
-resource "kubernetes_ingress_v1" "netbird_ingress" {
-  metadata {
-    name      = "netbird-ingress"
-    namespace = "netbird"
-    annotations = {
-      "cert-manager.io/cluster-issuer" = "letsencrypt-prod"
-    }
-  }
-
-  spec {
-    ingress_class_name = "traefik"
-
-    tls {
-      hosts = [trimspace(var.netbird_fqdn)]
-      secret_name = "wildcard-${replace(trimspace(var.wildcard_fqdn), ".", "-")}-tls"
-    }
-
-    rule {
-      host = trimspace(var.netbird_fqdn)
-      http {
         path {
-          path      = "/"
+          path = "/"
           path_type = "Prefix"
           backend {
             service {
@@ -226,11 +205,35 @@ resource "kubernetes_ingress_v1" "netbird_ingress" {
   }
 }
 
+resource "kubernetes_service_v1" "netbird_ingress_stun" {
+  metadata {
+    name = "netbird-ingress-stun"
+    namespace = "netbird"
+    annotations = {
+      "metallb.io/loadBalancerIPs" = "{trimspace(var.stun_ingress_ip)}"
+    }
+  }
+  spec {
+    type = "LoadBalancer"
+    external_traffic_policy = "Local"
+    selector = {
+      "app.kubernetes.io/instance" = "netbird"
+      "app.kubernetes.io/name" = "netbird"
+    }
+    port {
+      name = "netbird-stun"
+      protocol = "UDP"
+      port = 3478
+      target_port = 3478
+    }
+  }
+}
+
 resource "helm_release" "netbird_db" {
   name = "postgres"
   repository = "oci://ghcr.io/11notes/charts"
   chart = "postgres"
-  namespace  = "netbird"
+  namespace = "netbird"
   version = "1.0.0"
 
   wait = true
@@ -293,6 +296,11 @@ resource "helm_release" "netbird" {
 
   values = [
     yamlencode({
+      service = {
+        annotations = {
+          "traefik.ingress.kubernetes.io/service.serversscheme" = "h2c"
+        }
+      }
       image = {
         tag = "0.76.1"
       }
