@@ -31,6 +31,8 @@ run netbird rootless and distroless.
 >* ... this image is very small
 >* ... this image creates random entries for unset keys and hashes from the default config
 >* ... this image supports [inline configs](https://github.com/11notes/RTFM/blob/master/linux/container/image/11notes/inline-config.md)
+>* ... this image has it's own helm [charts](https://github.com/11notes/docker-netbird/tree/master/charts)
+>* ... this image has it's terraform deployment [script](https://github.com/11notes/docker-netbird/blob/master/terraform/main.tf)
 
 If you value security, simplicity and optimizations to the extreme, then this image might be for you.
 
@@ -246,4 +248,4 @@ This image supports nobody by default. Simply add **-nobody** to any tag and the
 # ElevenNotes™️
 This image is provided to you at your own risk. Always make backups before updating an image to a different version. Check the [releases](https://github.com/11notes/docker-netbird/releases) for breaking changes. If you have any problems with using this image simply raise an [issue](https://github.com/11notes/docker-netbird/issues), thanks. If you have a question or inputs please create a new [discussion](https://github.com/11notes/docker-netbird/discussions) instead of an issue. You can find all my other repositories on [github](https://github.com/11notes?tab=repositories).
 
-*created 04.08.2026, 01:26:55 (CET)*
+*created 04.08.2026, 12:01:46 (CET)*
