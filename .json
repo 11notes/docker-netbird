@@ -4,7 +4,7 @@
   "name": "netbird",
   "root": "/netbird",
   "semver": {
-    "version": "0.76.2"
+    "version": "0.76.3"
   },
   "build": {
     "args": {
