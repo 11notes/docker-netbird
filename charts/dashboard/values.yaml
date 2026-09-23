@@ -1,6 +1,6 @@
 image:
   repository: 11notes/netbird
-  tag: "0.76.1"
+  tag: "0.79.0"
   pullPolicy: IfNotPresent
 
 replicaCount: 1

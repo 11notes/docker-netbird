@@ -38,11 +38,13 @@ spec:
             runAsUser: 0
         - name: chown-db-wait
           image: "11notes/k8s-init"
+          imagePullPolicy: Always
           command:
             - sh
             - -c
             - |
               eleven k8s chown /nginx {{ .Values.containerSecurityContext.runAsUser | default 1000 }} {{ .Values.containerSecurityContext.runAsGroup | default 1000 }}
+              eleven k8s chmod /nginx 2750
               chmod 0755 -R /nginx
           volumeMounts:
             - name: var
