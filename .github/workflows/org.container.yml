@@ -635,12 +635,12 @@ jobs:
       # CREATE GITHUB RELEASE
       - name: github release / create
         if: env.WORKFLOW_CREATE_RELEASE == 'true' && steps.git-release.outcome == 'success'
-        uses: actions/create-release@0cb9c9b65d5d1901c1f53e5e66eaf4afd303e70e # v1.1.4
+        uses: softprops/action-gh-release@efb35369e0ad2afab669f228072c1b0d510eae64 # v3.0.3
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: ${{ github.ref }}
-          release_name: ${{ github.ref }}
+          name: ${{ github.ref_name }}
           body: ${{ steps.git-release.outputs.release }}
           draft: false
           prerelease: false
@@ -892,6 +892,13 @@ jobs:
               "has_projects":false,
               "has_wiki":false
             }' \
+            --fail
+
+          curl --request PUT \
+            --url https://api.github.com/repos/${{ github.repository }}/actions/permissions/artifact-and-log-retention \
+            --header 'authorization: Bearer ${{ secrets.REPOSITORY_TOKEN }}' \
+            --header 'content-type: application/json' \
+            --data '{"days": 1}' \
             --fail
 
       # ╔═════════════════════════════════════════════════════╗

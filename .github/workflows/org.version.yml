@@ -19,21 +19,20 @@ jobs:
   version:
     runs-on: ubuntu-latest
     steps:
-      - name: setup config
-        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
+      - name: checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
-          script: |
-            const { Buffer } = require('node:buffer');
-            const etc = {
-              version:"${{ github.event.inputs.version }}",
-              semver:{disable:{rolling:true}}
-            };
-            core.exportVariable('WORKFLOW_BASE64JSON', Buffer.from(JSON.stringify(etc)).toString('base64'));
+          ref: 'master'
 
-      - name: build container image
-        uses: benc-uk/workflow-dispatch@31e2b3319479a63f0ab15bf800eff9e913504e26 #v1.3.2
+      - name: set build parameters
+        uses: 11notes/actions/version@v1 # v1
         with:
+          version: ${{ github.event.inputs.version }}
+
+      - name: build container images
+        uses: benc-uk/workflow-dispatch@7a027648b88c2413826b6ddd6c76114894dc5ec4 # v1.3.1
+        with:
+          workflow: org.build.yml
           wait-for-completion: false
-          workflow: org.container.yml
           token: "${{ secrets.REPOSITORY_TOKEN }}"
-          inputs: '{ "release":"false", "readme":"false", "run-name":"org.container build ${{ github.event.inputs.version }}", "etc":"${{ env.WORKFLOW_BASE64JSON }}" }'
+          inputs: '{ "ref":"master",  "release":"false", "readme":"false", "etc":"${{ env.ACTIONS_VERSION_BASE64JSON }}" }'
