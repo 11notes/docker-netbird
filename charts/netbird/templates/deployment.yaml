@@ -44,7 +44,7 @@ spec:
             - -c
             - |
               eleven k8s chown /netbird {{ .Values.containerSecurityContext.runAsUser | default 1000 }} {{ .Values.containerSecurityContext.runAsGroup | default 1000 }}
-              eleven k8s chmod /netbird 2750
+              eleven k8s chmod /netbird 750
               eleven k8s wait postgres {{ .Values.postgres.serviceName }}
           volumeMounts:
             - name: etc
