@@ -64,7 +64,6 @@ resource "kubernetes_ingress_v1" "netbird_ingress_grpc" {
     namespace = "netbird"
     annotations = {
       "cert-manager.io/cluster-issuer" = "letsencrypt-prod"
-      "traefik.ingress.kubernetes.io/service.serversscheme" = "h2c"
     }
   }
 
@@ -73,7 +72,7 @@ resource "kubernetes_ingress_v1" "netbird_ingress_grpc" {
 
     tls {
       hosts = [trimspace(var.netbird_fqdn)]
-      secret_name = "wildcard-${replace(trimspace(var.wildcard_fqdn), ".", "-")}-tls"
+      secret_name = trimspace(var.wildcard_fqdn)
     }
 
     rule {
@@ -84,7 +83,7 @@ resource "kubernetes_ingress_v1" "netbird_ingress_grpc" {
           path_type = "Prefix"
           backend {
             service {
-              name = "netbird"
+              name = "netbird-grpc"
               port {
                 number = 8080
               }
@@ -96,7 +95,7 @@ resource "kubernetes_ingress_v1" "netbird_ingress_grpc" {
           path_type = "Prefix"
           backend {
             service {
-              name = "netbird"
+              name = "netbird-grpc"
               port {
                 number = 8080
               }
@@ -108,7 +107,7 @@ resource "kubernetes_ingress_v1" "netbird_ingress_grpc" {
           path_type = "Prefix"
           backend {
             service {
-              name = "netbird"
+              name = "netbird-grpc"
               port {
                 number = 8080
               }
@@ -134,7 +133,7 @@ resource "kubernetes_ingress_v1" "netbird_ingress_ws" {
 
     tls {
       hosts = [trimspace(var.netbird_fqdn)]
-      secret_name = "wildcard-${replace(trimspace(var.wildcard_fqdn), ".", "-")}-tls"
+      secret_name = trimspace(var.wildcard_fqdn)
     }
 
     rule {
