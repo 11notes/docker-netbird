@@ -30,9 +30,6 @@ metadata:
     {{- include (printf "%s.labels" .Chart.Name) . | nindent 4 }}
   annotations:
     traefik.ingress.kubernetes.io/service.serversscheme: h2c
-    {{- with .Values.serviceGrpc.annotations }}
-    {{- toYaml . | nindent 4 }}
-    {{- end }}
 spec:
   type: ClusterIP
   ports:
