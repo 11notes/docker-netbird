@@ -265,13 +265,10 @@ resource "helm_release" "netbird_dashboard" {
   repository = "oci://ghcr.io/11notes/charts"
   chart = "netbird-dashboard"
   namespace = "netbird"
-  version = "1.0.0"
+  version = "1.1.5"
 
   values = [
     yamlencode({
-      image = {
-        tag = "0.76.1"
-      }
       netbird = {
         fqdn = trimspace(var.netbird_fqdn)
       }
@@ -291,18 +288,10 @@ resource "helm_release" "netbird" {
   repository = "oci://ghcr.io/11notes/charts"
   chart = "netbird"
   namespace = "netbird"
-  version = "1.0.0"
+  version = "1.1.5"
 
   values = [
     yamlencode({
-      service = {
-        annotations = {
-          "traefik.ingress.kubernetes.io/service.serversscheme" = "h2c"
-        }
-      }
-      image = {
-        tag = "0.76.1"
-      }
       netbird = {
         fqdn = trimspace(var.netbird_fqdn)
       }
