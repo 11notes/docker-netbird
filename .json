@@ -30,5 +30,7 @@
         "netbirdio/netbird-server"
       ]
     }
-  }
+  },
+  "unraid": true,
+  "nobody": true
 }
