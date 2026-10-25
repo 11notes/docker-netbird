@@ -2,8 +2,8 @@ apiVersion: v2
 name: netbird-dashboard
 description: run netbird rootless and distroless on k8s
 type: application
-version: 1.2.2
-appVersion: 0.81.3
+version: 1.2.3
+appVersion: 0.81.4
 home: https://github.com/11notes/docker-netbird
 sources:
   - https://github.com/11notes/docker-netbird
