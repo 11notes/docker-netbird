@@ -4,11 +4,11 @@
   "name": "netbird",
   "root": "/netbird",
   "semver": {
-    "version": "0.80.0"
+    "version": "0.81.5"
   },
   "build": {
     "args": {
-      "dashboard_version": "2.94.0"
+      "dashboard_version": "2.95.0"
     }
   },
   "readme": {
