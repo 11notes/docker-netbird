@@ -33,12 +33,14 @@ jobs:
 
       - name: get latest version and build
         run: |
+          echo 'FORCE=false' >> "${GITHUB_ENV}"
           echo "LATEST_VERSION=$(curl -s https://api.github.com/repos/netbirdio/netbird/releases/latest | jq -r '.tag_name' | sed 's|v||')" >> "${GITHUB_ENV}"
           LATEST_DASHBOARD_VERSION=$(curl -s https://api.github.com/repos/netbirdio/dashboard/releases/latest | jq -r '.tag_name' | sed 's|v||')
           CURRENT_DASHBOARD_VERSION=$(curl -s https://raw.githubusercontent.com/11notes/docker-netbird/refs/heads/master/.json | jq -r '.build.args.dashboard_version')
           if [ "${CURRENT_DASHBOARD_VERSION}" != "null" ]; then
             if [ "${LATEST_DASHBOARD_VERSION}" != "${CURRENT_DASHBOARD_VERSION}" ]; then
-              echo 'ETC={"force":true, "build":{"args":{"dashboard_version":"'${LATEST_DASHBOARD_VERSION}'"}}}' >> "${GITHUB_ENV}"
+              echo 'ETC={"build":{"args":{"dashboard_version":"'${LATEST_DASHBOARD_VERSION}'"}}}' >> "${GITHUB_ENV}"
+              echo 'FORCE=true' >> "${GITHUB_ENV}"
             fi
           fi
 
@@ -47,6 +49,7 @@ jobs:
         with:
           latest: ${{ env.LATEST_VERSION }}
           etc: ${{ env.ETC }}
+          force: ${{ env.FORCE }}
 
       - name: call org.update
         if: env.ACTIONS_UPDATE == 'true'
