@@ -39,7 +39,7 @@ jobs:
           CURRENT_DASHBOARD_VERSION=$(curl -s https://raw.githubusercontent.com/11notes/docker-netbird/refs/heads/master/.json | jq -r '.build.args.dashboard_version')
           if [ "${CURRENT_DASHBOARD_VERSION}" != "null" ]; then
             if [ "${LATEST_DASHBOARD_VERSION}" != "${CURRENT_DASHBOARD_VERSION}" ]; then
-              echo 'ETC={"build":{"args":{"dashboard_version":"'${LATEST_DASHBOARD_VERSION}'"}}}' >> "${GITHUB_ENV}"
+              echo 'ETC={"force":true, "build":{"args":{"dashboard_version":"'${LATEST_DASHBOARD_VERSION}'"}}}' >> "${GITHUB_ENV}"
               echo 'FORCE=true' >> "${GITHUB_ENV}"
             fi
           fi
