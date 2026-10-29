@@ -31,33 +31,27 @@ jobs:
           ref: 'master'
           fetch-depth: 0
 
-      - name: get latest version and last tag
+      - name: get latest version and build
         run: |
-          LATEST_VERSION=$(curl -s https://api.github.com/repos/netbirdio/netbird/releases/latest | jq -r '.tag_name' | sed 's|v||')
+          echo "LATEST_VERSION=$(curl -s https://api.github.com/repos/netbirdio/netbird/releases/latest | jq -r '.tag_name' | sed 's|v||')" >> "${GITHUB_ENV}"
           LATEST_DASHBOARD_VERSION=$(curl -s https://api.github.com/repos/netbirdio/dashboard/releases/latest | jq -r '.tag_name' | sed 's|v||')
-          if [ "${LATEST_VERSION}" != "null" ] && [ "${LATEST_DASHBOARD_VERSION}" != "null" ]; then
-            if ! curl -kILs --fail https://hub.docker.com/v2/repositories/11notes/netbird/tags/${LATEST_VERSION}; then
-              LATEST_TAG=$(git describe --abbrev=0 --tags `git rev-list --tags --max-count=1` | sed 's|v||')
-              echo "WORKFLOW_UPDATE_BASE64JSON=$(echo '{"version":"'${LATEST_VERSION}'", "tag":"'${LATEST_TAG}'", "unraid":true, "nobody":true, "build":{"args":{"dashboard_version":"'${LATEST_DASHBOARD_VERSION}'"}}}' | base64 -w 0)" >> "${GITHUB_ENV}"
-              echo "WORKFLOW_UPDATE=true" >> "${GITHUB_ENV}"
-            fi
-
-            CURRENT_DASHBOARD_VERSION=$(curl -s https://raw.githubusercontent.com/11notes/docker-netbird/refs/heads/master/.json | jq -r '.build.args.dashboard_version')
-            if [ "${CURRENT_DASHBOARD_VERSION}" != "null" ]; then
-              if [ "${LATEST_DASHBOARD_VERSION}" != "${CURRENT_DASHBOARD_VERSION}" ]; then
-                LATEST_TAG=$(git describe --abbrev=0 --tags `git rev-list --tags --max-count=1` | sed 's|v||')
-                echo "WORKFLOW_UPDATE_BASE64JSON=$(echo '{"force":true, "version":"'${LATEST_VERSION}'", "tag":"'${LATEST_TAG}'", "unraid":true, "nobody":true, "build":{"args":{"dashboard_version":"'${LATEST_DASHBOARD_VERSION}'"}}}' | base64 -w 0)" >> "${GITHUB_ENV}"
-                echo "WORKFLOW_UPDATE=true" >> "${GITHUB_ENV}"
-                echo "force update current image with newer dashboard version"
-              fi
+          CURRENT_DASHBOARD_VERSION=$(curl -s https://raw.githubusercontent.com/11notes/docker-netbird/refs/heads/master/.json | jq -r '.build.args.dashboard_version')
+          if [ "${CURRENT_DASHBOARD_VERSION}" != "null" ]; then
+            if [ "${LATEST_DASHBOARD_VERSION}" != "${CURRENT_DASHBOARD_VERSION}" ]; then
+              echo 'ETC={"force":true, "build":{"args":{"dashboard_version":"'${LATEST_DASHBOARD_VERSION}'"}}}' >> "${GITHUB_ENV}"
             fi
           fi
 
+      - name: check if updated is needed
+        uses: 11notes/actions/update@v1 # v1
+        with:
+          latest: ${{ env.LATEST_VERSION }}
+
       - name: call org.update
-        if: env.WORKFLOW_UPDATE == 'true'
+        if: env.ACTIONS_UPDATE == 'true'
         uses: benc-uk/workflow-dispatch@7a027648b88c2413826b6ddd6c76114894dc5ec4 # v1.3.1
         with:
           wait-for-completion: false
           workflow: org.update.yml
           token: "${{ secrets.REPOSITORY_TOKEN }}"
-          inputs: '{ "etc":"${{ env.WORKFLOW_UPDATE_BASE64JSON }}" }'
+          inputs: '{ "etc":"${{ env.ACTIONS_UPDATE_BASE64JSON }}" }'
