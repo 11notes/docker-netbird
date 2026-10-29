@@ -12,6 +12,11 @@ on:
         type: string
         required: true
 
+      etc:
+        description: 'base64 encoded json string with additional settings'
+        type: string
+        required: false
+
 jobs:
   # ╔═════════════════════════════════════════════════════╗
   # ║               BUILD VERSION {N} IMAGE               ║

@@ -25,6 +25,11 @@ on:
         required: false
         default: 'true'
 
+      wait:
+        description: 'wait for last build'
+        required: false
+        default: 'true'
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -72,7 +77,7 @@ jobs:
         uses: benc-uk/workflow-dispatch@31e2b3319479a63f0ab15bf800eff9e913504e26 #v1.3.2
         with:
           workflow: org.container.yml
-          wait-for-completion: false
+          wait-for-completion: ${{ github.event.inputs.wait == 'true' }}
           token: "${{ secrets.REPOSITORY_TOKEN }}"
           inputs: '{ "release":"false", "readme":"false", "run-name":"build unraid ${{ github.event.inputs.ref }}", "etc":"${{ env.WORKFLOW_BUILD_UNRAID_BASE64JSON }}" }'
 
@@ -82,6 +87,6 @@ jobs:
         uses: benc-uk/workflow-dispatch@31e2b3319479a63f0ab15bf800eff9e913504e26 #v1.3.2
         with:
           workflow: org.container.yml
-          wait-for-completion: false
+          wait-for-completion: ${{ github.event.inputs.wait == 'true' }}
           token: "${{ secrets.REPOSITORY_TOKEN }}"
           inputs: '{ "release":"false", "readme":"false", "run-name":"build nobody ${{ github.event.inputs.ref }}", "etc":"${{ env.WORKFLOW_BUILD_NOBODY_BASE64JSON }}" }'
