@@ -2,7 +2,7 @@ apiVersion: v2
 name: netbird
 description: run netbird rootless and distroless on k8s
 type: application
-version: 1.2.4
+version: null
 appVersion: 0.81.5
 home: https://github.com/11notes/docker-netbird
 sources:
