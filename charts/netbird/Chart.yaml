@@ -3,7 +3,7 @@ name: netbird
 description: run netbird rootless and distroless on k8s
 type: application
 version: null
-appVersion: 0.81.5
+appVersion: 0.82.0
 home: https://github.com/11notes/docker-netbird
 sources:
   - https://github.com/11notes/docker-netbird
