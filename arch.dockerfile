@@ -39,12 +39,7 @@
     cd ${BUILD_ROOT}; \
     sed -i 's|"gorm.io/driver/sqlite"|"github.com/glebarez/sqlite"|' ${BUILD_ROOT}/management/server/geolocation/database.go; \
     sed -i 's|"gorm.io/driver/sqlite"|"github.com/glebarez/sqlite"|' ${BUILD_ROOT}/management/server/geolocation/store.go; \
-    go mod tidy; \
-    DEX_PATH=$(go list -m -f '{{.Dir}}' github.com/dexidp/dex); \
-    cp -af ${DEX_PATH}/. /go/dex; \
-    go mod edit -replace github.com/dexidp/dex=/go/dex;
-
-  COPY ./build/go/dex /go/dex
+    go mod tidy;
 
   RUN set -eux; \
     cd ${BUILD_ROOT}; \
