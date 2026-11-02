@@ -171,6 +171,10 @@ jobs:
         run: |
           echo "QUAY_STATUS=$(curl -s https://status.redhat.com/api/v2/components.json | jq -r '.components[] | select(.name | contains("Quay") or contains("quay")) | .status')" >> $GITHUB_ENV
 
+      # SETUP CRANE
+      - name: init / setup crane
+        uses: imjasonh/setup-crane@feee3b6bb0d4c68370f256a4502498c9227e5c6b # v0.7.0
+
       # SETUP NODE JS
       - name: update / setup node
         uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
@@ -525,6 +529,8 @@ jobs:
           no-cache: ${{ env.WORKFLOW_BUILD_NO_CACHE }}
           file: ${{ env.DOCKER_IMAGE_DOCKERFILE }}
           push: true
+          sbom: true
+          provenance: mode=max
           platforms: linux/${{ matrix.platform }}
           cache-from: type=registry,ref=${{ env.DOCKER_CACHE_NAME }}
           cache-to: type=registry,ref=${{ env.DOCKER_CACHE_REGISTRY }}${{ env.DOCKER_CACHE_NAME }},mode=max,compression=zstd,force-compression=true
@@ -581,25 +587,25 @@ jobs:
           docker logs integration-main-1
           exit 1
 
-      # PUSH IMAGE TO ALL REGISTRIES IF CLEAN
       - name: container image / push to registries
         id: image-push
         if: env.WORKFLOW_BUILD == 'true'
-        uses: docker/build-push-action@d08e5c354a6adb9ed34480a06d141179aa583294 # v7.0.0
-        with:
-          context: .
-          no-cache: ${{ env.WORKFLOW_BUILD_NO_CACHE }}
-          file: ${{ env.DOCKER_IMAGE_DOCKERFILE }}
-          push: true
-          sbom: true
-          provenance: mode=max
-          platforms: linux/${{ matrix.platform }}
-          cache-from: type=registry,ref=${{ env.DOCKER_CACHE_REGISTRY }}${{ env.DOCKER_CACHE_NAME }}
-          cache-to: type=registry,ref=${{ env.DOCKER_CACHE_NAME }},mode=max,compression=zstd,force-compression=true
-          build-args: |
-            ${{ env.DOCKER_IMAGE_ARGUMENTS }}
-          tags: |
-            ${{ env.DOCKER_IMAGE_TAGS }}
+        env:
+          SRC_DIGEST: ${{ steps.image-build.outputs.digest }}
+        run: |
+          strip_tag() {
+            local n="${1%@*}"
+            [[ "${n##*/}" == *:* ]] && n="${n%:*}"
+            echo "${n}"
+          }
+
+          SRC="$(strip_tag "${DOCKER_CACHE_GRYPE}")@${SRC_DIGEST}"
+          for TARGET in $(echo "${DOCKER_IMAGE_TAGS}" | tr ',' '\n' | while read -r REF; do strip_tag "${REF}"; done | sort -u); do
+            DEST="${TARGET}@${SRC_DIGEST}"
+            echo "copying ${SRC} -> ${DEST}"
+            crane copy "${SRC}" "${DEST}"
+          done
+          echo "digest=${SRC_DIGEST}" >> "$GITHUB_OUTPUT"
 
       # CREATE ATTESTATION ARTIFACTS
       - name: container image / create attestation artifacts
