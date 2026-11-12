@@ -38,8 +38,25 @@
     # :: patch Netbird to not require cgo and produce a static binary
     cd ${BUILD_ROOT}; \
     sed -i 's|"gorm.io/driver/sqlite"|"github.com/glebarez/sqlite"|' ${BUILD_ROOT}/management/server/geolocation/database.go; \
-    sed -i 's|"github.com/mattn/go-sqlite3"|"github.com/glebarez/sqlite"|' ${BUILD_ROOT}/management/server/geolocation/store.go; \
-    sed -i 's|"gorm.io/driver/sqlite"|"github.com/glebarez/sqlite"|' ${BUILD_ROOT}/management/server/store/sql_store_proxy.go; \
+    sed -i 's|"gorm.io/driver/sqlite"|"github.com/glebarez/sqlite"|' ${BUILD_ROOT}/management/server/geolocation/store.go; \
+    sed -i '/go_sqlite "github.com\/mattn\/go-sqlite3"/d' ${BUILD_ROOT}/management/server/store/sql_store_proxy.go; \
+    sed -i '/sqliteErr, sqliteErrOk := result.Error.(go_sqlite.Error)/d' ${BUILD_ROOT}/management/server/store/sql_store_proxy.go; \
+    sed -i 's/(sqliteErrOk && sqliteErr.ExtendedCode == 1555)/isSqliteConstraintErr(result.Error)/' ${BUILD_ROOT}/management/server/store/sql_store_proxy.go; \
+    ! grep -n 'go_sqlite\|sqliteErr' ${BUILD_ROOT}/management/server/store/sql_store_proxy.go; \
+    printf '%s\n' \
+      'package store' \
+      '' \
+      'import (' \
+      '	"errors"' \
+      '' \
+      '	go_sqlite "github.com/glebarez/go-sqlite"' \
+      ')' \
+      ''  \
+      'func isSqliteConstraintErr(err error) bool {' \
+      '	var se *go_sqlite.Error' \
+      '	return errors.As(err, &se) && se.Code() == 1555' \
+      '}' \
+      > ${BUILD_ROOT}/management/server/store/sqlite_err.go; \
     go mod tidy;
 
   RUN set -eux; \
