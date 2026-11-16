@@ -169,7 +169,7 @@ jobs:
       # CHECK IF QUAY.IO IS DOWN AGAIN
       - name: init / check quay.io
         run: |
-          echo "QUAY_STATUS=$(curl -s https://status.redhat.com/api/v2/components.json | jq -r '.components[] | select(.name | contains("Quay") or contains("quay")) | .status')" >> $GITHUB_ENV
+          echo "QUAY_STATUS=$(curl -sSL https://status.redhat.com/api/v2/components.json | jq -r '.components[] | select(.name | contains("Quay") or contains("quay")) | .status')" >> $GITHUB_ENV
 
       # SETUP CRANE
       - name: init / setup crane
@@ -916,7 +916,7 @@ jobs:
             --url https://api.github.com/repos/${{ github.repository }}/actions/permissions/artifact-and-log-retention \
             --header 'authorization: Bearer ${{ secrets.REPOSITORY_TOKEN }}' \
             --header 'content-type: application/json' \
-            --data '{"days": 1}' \
+            --data '{"days": 90}' \
             --fail
 
       # ╔═════════════════════════════════════════════════════╗
@@ -935,4 +935,4 @@ jobs:
               "secret":"${{ secrets.DOCKER_TOKEN }}"
             }' \
             --fail | jq -r ".access_token")
-          curl -s -H "Authorization: Bearer ${TOKEN}" -X DELETE https://hub.docker.com/v2/repositories/${{ env.DOCKER_IMAGE_NAME }}/tags/latest || echo ":latest tag not found"
+          curl -sSL -H "Authorization: Bearer ${TOKEN}" -X DELETE https://hub.docker.com/v2/repositories/${{ env.DOCKER_IMAGE_NAME }}/tags/latest || echo ":latest tag not found"
