@@ -77,8 +77,16 @@ jobs:
                     try{
                       const chart = YAML.parse(readFileSync(path).toString());
                       chart.appVersion = version;
-                      chart.version = semver.inc(semver.valid(semver.coerce(chart.version)), diff);
-                      writeFileSync(path, YAML.stringify(chart));
+                      if(semver.valid(semver.coerce(chart.version)){
+                        chart.version = semver.inc(semver.valid(semver.coerce(chart.version)), diff);
+                        if(chart.version !== 'null'){
+                          writeFileSync(path, YAML.stringify(chart));
+                        }else{
+                          core.warning(`chart.version is not valid semver: ${chart.version}`);
+                        }
+                      }else{
+                        core.warning(`chart.version is not valid semver: ${chart.version}`);
+                      }
                     }catch(e){
                       throw new Error(`could not parse ${file}`);
                     }
