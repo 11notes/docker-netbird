@@ -77,7 +77,7 @@ jobs:
                     try{
                       const chart = YAML.parse(readFileSync(path).toString());
                       chart.appVersion = version;
-                      if(semver.valid(semver.coerce(chart.version)){
+                      if(semver.valid(semver.coerce(chart.version))){
                         chart.version = semver.inc(semver.valid(semver.coerce(chart.version)), diff);
                         if(chart.version !== 'null'){
                           writeFileSync(path, YAML.stringify(chart));
