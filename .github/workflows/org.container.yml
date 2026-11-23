@@ -169,7 +169,7 @@ jobs:
       # CHECK IF QUAY.IO IS DOWN AGAIN
       - name: init / check quay.io
         run: |
-          echo "QUAY_STATUS=$(curl -sSL https://status.redhat.com/api/v2/components.json | jq -r '.components[] | select(.name | contains("Quay") or contains("quay")) | .status')" >> $GITHUB_ENV
+          echo "QUAY_STATUS=$(curl -fsSL --retry 3 https://status.redhat.com/api/v2/components.json | jq -r '.components[] | select(.name | contains("Quay") or contains("quay")) | .status')" >> $GITHUB_ENV
 
       # SETUP CRANE
       - name: init / setup crane
@@ -559,7 +559,7 @@ jobs:
       # PERFORM INTEGRATION TEST
       - name: container image / integration test
         id: integration
-        if: hashFiles('./.github/tests/integration/compose.yml') != ''
+        if: hashFiles('./.github/tests/integration/compose.yml') && github.event.inputs.build == 'true' && steps.image-build.outcome == 'success'
         run: |
           cd ./.github/tests/integration
           IMAGE="${{ env.DOCKER_CACHE_GRYPE }}" docker compose up -d
@@ -935,4 +935,4 @@ jobs:
               "secret":"${{ secrets.DOCKER_TOKEN }}"
             }' \
             --fail | jq -r ".access_token")
-          curl -sSL -H "Authorization: Bearer ${TOKEN}" -X DELETE https://hub.docker.com/v2/repositories/${{ env.DOCKER_IMAGE_NAME }}/tags/latest || echo ":latest tag not found"
+          curl -fsSL --retry 3 -H "Authorization: Bearer ${TOKEN}" -X DELETE https://hub.docker.com/v2/repositories/${{ env.DOCKER_IMAGE_NAME }}/tags/latest || echo ":latest tag not found"
